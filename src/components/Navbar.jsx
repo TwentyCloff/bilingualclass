@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
-import { Bell, User, Home, Trophy, X, Menu } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, User, Home, Trophy, X, Menu, LogOut, DollarSign, List } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from '../config/firebaseConfig';
 
 export default function Navbar() {
   const [showAnnouncement, setShowAnnouncement] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const announcements = [
     {
@@ -28,7 +41,26 @@ export default function Navbar() {
   const handleNavigation = (route) => {
     navigate(route);
     setMobileMenuOpen(false);
+    setProfileMenuOpen(false);
   };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setProfileMenuOpen(false);
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-sm border-b border-white/10 h-20">
+        {/* Loading placeholder */}
+      </nav>
+    );
+  }
 
   return (
     <>
@@ -70,14 +102,52 @@ export default function Navbar() {
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"></span>
               </button>
 
-              {/* Sign In Button */}
-              <button 
-                onClick={() => handleNavigation('/signin')}
-                className="flex items-center space-x-2 border border-white/20 hover:border-white/40 px-6 py-2 text-sm text-white/80 hover:text-white transition-all duration-300 uppercase tracking-wider"
-              >
-                <User className="w-4 h-4" />
-                <span>Sign In</span>
-              </button>
+              {/* User Profile Button */}
+              {user ? (
+                <div className="relative">
+                  <button 
+                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-300"
+                  >
+                    <User className="w-5 h-5 text-white" />
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  {profileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-black border border-white/20 rounded-lg shadow-lg overflow-hidden z-50">
+                      <button
+                        onClick={() => handleNavigation('/kas')}
+                        className="w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all"
+                      >
+                        <DollarSign className="w-5 h-5 mr-3 text-green-400" />
+                        <span>Kas Manager</span>
+                      </button>
+                      <button
+                        onClick={() => handleNavigation('/list')}
+                        className="w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all border-t border-white/10"
+                      >
+                        <List className="w-5 h-5 mr-3 text-blue-400" />
+                        <span>Listing Stuff</span>
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all border-t border-white/10 text-red-400"
+                      >
+                        <LogOut className="w-5 h-5 mr-3" />
+                        <span>Log Out</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button 
+                  onClick={() => handleNavigation('/Sign-In')}
+                  className="flex items-center space-x-2 border border-white/20 hover:border-white/40 px-6 py-2 text-sm text-white/80 hover:text-white transition-all duration-300 uppercase tracking-wider"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
 
             {/* Mobile Menu Buttons */}
@@ -132,13 +202,39 @@ export default function Navbar() {
                 <span>Achievement</span>
               </button>
 
-              <button 
-                onClick={() => handleNavigation('/signin')}
-                className="flex items-center space-x-4 text-white/80 hover:text-white transition-colors duration-300 text-lg uppercase tracking-wider py-3"
-              >
-                <User className="w-5 h-5" />
-                <span>Sign In</span>
-              </button>
+              {user ? (
+                <>
+                  <button 
+                    onClick={() => handleNavigation('/kas')}
+                    className="flex items-center space-x-4 text-white/80 hover:text-white transition-colors duration-300 text-lg uppercase tracking-wider py-3"
+                  >
+                    <DollarSign className="w-5 h-5" />
+                    <span>Kas Manager</span>
+                  </button>
+                  <button 
+                    onClick={() => handleNavigation('/list')}
+                    className="flex items-center space-x-4 text-white/80 hover:text-white transition-colors duration-300 text-lg uppercase tracking-wider py-3"
+                  >
+                    <List className="w-5 h-5" />
+                    <span>Listing Stuff</span>
+                  </button>
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center space-x-4 text-red-400 hover:text-red-300 transition-colors duration-300 text-lg uppercase tracking-wider py-3"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>Log Out</span>
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => handleNavigation('/Sign-In')}
+                  className="flex items-center space-x-4 text-white/80 hover:text-white transition-colors duration-300 text-lg uppercase tracking-wider py-3"
+                >
+                  <User className="w-5 h-5" />
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
           </div>
         )}

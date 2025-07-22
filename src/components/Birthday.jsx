@@ -20,7 +20,7 @@ export default function Birthday() {
     { name: "Falan", birthday: "18-03-2009" },
     { name: "Fathul", birthday: "13-04-2008" },
     { name: "Firly", birthday: "06-01-2010" },
-    { name: "Fredy", birthday: "22-07-2009" },
+    { name: "Fredy", birthday: "03-04-2009" },
     { name: "Hayyu", birthday: "03-09-2009" },
     { name: "Jessica", birthday: "" },
     { name: "Kalinda", birthday: "19-03-2009" },

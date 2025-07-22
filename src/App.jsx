@@ -1,12 +1,16 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { useState } from "react";
+// src/App.jsx
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Menu, Gift, Mail, X } from "lucide-react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./config/firebaseConfig";
 import Hero from "./components/Hero";
 import Navbar from "./components/Navbar";
 import Student from "./components/Student";
 import Footer from "./components/Footer";
 import Contact from "./components/Contact";
 import Birthday from "./components/Birthday";
+import SignIn from "./components/Auth";
 
 const Home = () => (
   <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
@@ -25,15 +29,51 @@ const NotFound = () => (
   </div>
 );
 
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  return user ? children : <Navigate to="/Sign-In" replace />;
+};
+
 const App = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const navigateTo = (path) => {
+    if ((path === '/birthday' || path === '/contact') && !user) {
+      navigate('/Sign-In');
+      return;
+    }
     navigate(path);
     setIsMenuOpen(false);
   };
@@ -42,8 +82,23 @@ const App = () => {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/birthday" element={<Birthday />} />
+        <Route path="/Sign-In" element={<SignIn />} />
+        <Route 
+          path="/contact" 
+          element={
+            <ProtectedRoute>
+              <Contact />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/birthday" 
+          element={
+            <ProtectedRoute>
+              <Birthday />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
@@ -77,6 +132,14 @@ const App = () => {
               <Mail className="w-5 h-5 mr-3 text-blue-400" />
               <span>Contact</span>
             </button>
+            {!user && (
+              <button
+                onClick={() => navigateTo("/")}
+                className="w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all border-t border-white/10 text-sm text-yellow-400"
+              >
+                Sign In Required
+              </button>
+            )}
           </div>
         )}
       </div>
