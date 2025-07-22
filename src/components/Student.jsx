@@ -16,7 +16,7 @@ export default function ClassStructure() {
   const students = [
     "Aurelia", "Chalisa", "Dahlia", "Danu", "Fiqry", "Falan", "Fathul", 
     "Firly", "Hayyu", "Jessica", "Kalinda", "Laras", "Lukas", "Fakhar", 
-    "Firza", "Nazwa", "Quinsha", "Aisy", "Salsabila", "Shabrina", "Shafira", 
+    "Firza", "Nazwa", "Quinsha", "Aisy", "Salsabiela", "Shabrina", "Shafira", 
     "Humaira", "Tiara", "Utin", "Willy"
   ];
 
