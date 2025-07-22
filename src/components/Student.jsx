@@ -15,8 +15,8 @@ export default function ClassStructure() {
   // Students who are not in leadership positions
   const students = [
     "Aurelia", "Chalisa", "Dahlia", "Danu", "Fiqry", "Falan", "Fathul", 
-    "Firly", "Hatyu", "Jessica", "Kalinda", "Laras", "Lukas", "Fakhar", 
-    "Firza", "Nazwa", "Quinsha", "Aisy", "Salsabiela", "Shabrina", "Shafira", 
+    "Firly", "Hayyu", "Jessica", "Kalinda", "Laras", "Lukas", "Fakhar", 
+    "Firza", "Nazwa", "Quinsha", "Aisy", "Salsabila", "Shabrina", "Shafira", 
     "Humaira", "Tiara", "Utin", "Willy"
   ];
 
@@ -30,15 +30,15 @@ export default function ClassStructure() {
         }`}
         style={{ transitionDelay: `${delay}ms` }}
       >
-        <div className={`group relative ${isLeader ? 'bg-gradient-to-br from-gray-900 to-black border-2 border-white/30' : 'bg-black border border-white/20'} hover:border-white/40 p-6 transition-all duration-300 shadow-xl`}>
+        <div className={`group relative ${isLeader ? 'bg-gradient-to-br from-gray-900 to-black border-2 border-white/30' : 'bg-black border border-white/20'} hover:border-white/40 p-4 sm:p-6 transition-all duration-300 shadow-xl`}>
           <div className="flex flex-col items-center text-center">
-            <div className={`${isLeader ? 'w-16 h-16 bg-gradient-to-br from-white/10 to-white/5' : 'w-12 h-12'} border border-white/30 rounded-full flex items-center justify-center mb-3 group-hover:border-white/50 transition-colors duration-300`}>
-              <IconComponent className={`${isLeader ? 'w-7 h-7' : 'w-5 h-5'} text-white/70 group-hover:text-white transition-colors duration-300`} />
+            <div className={`${isLeader ? 'w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-white/10 to-white/5' : 'w-10 h-10 sm:w-12 sm:h-12'} border border-white/30 rounded-full flex items-center justify-center mb-2 sm:mb-3 group-hover:border-white/50 transition-colors duration-300`}>
+              <IconComponent className={`${isLeader ? 'w-5 h-5 sm:w-7 sm:h-7' : 'w-4 h-4 sm:w-5 sm:h-5'} text-white/70 group-hover:text-white transition-colors duration-300`} />
             </div>
-            <h3 className={`${isLeader ? 'text-lg font-medium' : 'text-sm font-light'} text-white mb-1 tracking-wide`}>{name}</h3>
+            <h3 className={`${isLeader ? 'text-sm sm:text-lg font-medium' : 'text-xs sm:text-sm font-light'} text-white mb-1 tracking-wide text-center break-words max-w-full`}>{name}</h3>
             <p className="text-xs text-white/50 uppercase tracking-widest">{role}</p>
             {isLeader && (
-              <div className="mt-2 w-8 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+              <div className="mt-2 w-6 sm:w-8 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
             )}
           </div>
         </div>
@@ -47,27 +47,27 @@ export default function ClassStructure() {
   };
 
   const ConnectionLine = ({ horizontal = false, className = "" }) => (
-    <div className={`bg-white/20 ${horizontal ? 'h-px w-full' : 'w-px h-6'} ${className}`}></div>
+    <div className={`bg-white/20 ${horizontal ? 'h-px w-full' : 'w-px h-4 sm:h-6'} ${className}`}></div>
   );
 
   return (
-    <div className="min-h-screen bg-black text-white py-20 px-6">
+    <div className="min-h-screen bg-black text-white py-10 sm:py-20 px-3 sm:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div 
-          className={`text-center mb-16 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+          className={`text-center mb-10 sm:mb-16 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
         >
-          <h1 className="text-4xl md:text-6xl font-light tracking-[0.2em] mb-4">
+          <h1 className="text-2xl sm:text-4xl md:text-6xl font-light tracking-[0.1em] sm:tracking-[0.2em] mb-4">
             CLASS STRUCTURE
           </h1>
-          <div className="w-24 h-px bg-white mx-auto mb-6"></div>
-          <h2 className="text-lg font-light tracking-[0.3em] text-white/60 uppercase">
+          <div className="w-16 sm:w-24 h-px bg-white mx-auto mb-4 sm:mb-6"></div>
+          <h2 className="text-sm sm:text-lg font-light tracking-[0.2em] sm:tracking-[0.3em] text-white/60 uppercase">
             XI-A Bilingual Organization
           </h2>
         </div>
 
         {/* Organizational Chart */}
-        <div className="flex flex-col items-center space-y-12">
+        <div className="flex flex-col items-center space-y-8 sm:space-y-12">
           
           {/* Level 1: Homeroom Teacher */}
           <div className="flex justify-center relative">
@@ -79,119 +79,131 @@ export default function ClassStructure() {
               isLeader={true}
             />
             {/* Decorative elements */}
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <div className="w-2 h-2 bg-white/30 rounded-full"></div>
+            <div className="absolute -top-2 sm:-top-4 left-1/2 transform -translate-x-1/2">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/30 rounded-full"></div>
             </div>
           </div>
 
           {/* Connection from teacher */}
           <div className="flex flex-col items-center">
-            <div className="w-px h-8 bg-gradient-to-b from-white/40 to-white/20"></div>
-            <div className="w-2 h-2 bg-white/30 rounded-full"></div>
-            <div className="w-px h-4 bg-gradient-to-b from-white/20 to-white/10"></div>
+            <div className="w-px h-6 sm:h-8 bg-gradient-to-b from-white/40 to-white/20"></div>
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/30 rounded-full"></div>
+            <div className="w-px h-3 sm:h-4 bg-gradient-to-b from-white/20 to-white/10"></div>
           </div>
 
           {/* Level 2: Class President & Vice President */}
-          <div className="flex flex-col items-center relative">
-            <div className="flex items-center justify-center space-x-20">
-              <PersonCard 
-                name="Nadine" 
-                role="Class President" 
-                icon={Star}
-                delay={100}
-                isLeader={true}
-              />
-              <PersonCard 
-                name="Alicia" 
-                role="Vice President" 
-                icon={User}
-                delay={200}
-                isLeader={true}
-              />
+          <div className="flex flex-col items-center relative w-full max-w-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-6 sm:space-y-0 sm:space-x-12 lg:space-x-20 w-full">
+              <div className="flex-1 flex justify-center">
+                <PersonCard 
+                  name="Nadine" 
+                  role="Class President" 
+                  icon={Star}
+                  delay={100}
+                  isLeader={true}
+                />
+              </div>
+              <div className="flex-1 flex justify-center">
+                <PersonCard 
+                  name="Alicia" 
+                  role="Vice President" 
+                  icon={User}
+                  delay={200}
+                  isLeader={true}
+                />
+              </div>
             </div>
-            {/* Enhanced connection line */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-20 h-px bg-gradient-to-r from-white/20 via-white/40 to-white/20"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white/40 rounded-full"></div>
+            {/* Enhanced connection line - hidden on mobile when stacked vertically */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden sm:block">
+              <div className="w-12 lg:w-20 h-px bg-gradient-to-r from-white/20 via-white/40 to-white/20"></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/40 rounded-full"></div>
             </div>
           </div>
 
           {/* Connection to secretaries */}
           <div className="flex flex-col items-center">
-            <div className="w-px h-8 bg-gradient-to-b from-white/30 to-white/20"></div>
-            <div className="w-2 h-2 bg-white/30 rounded-full"></div>
-            <div className="w-px h-4 bg-gradient-to-b from-white/20 to-white/10"></div>
+            <div className="w-px h-6 sm:h-8 bg-gradient-to-b from-white/30 to-white/20"></div>
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/30 rounded-full"></div>
+            <div className="w-px h-3 sm:h-4 bg-gradient-to-b from-white/20 to-white/10"></div>
           </div>
 
           {/* Level 3: Secretaries */}
-          <div className="flex flex-col items-center relative">
-            <div className="flex items-center justify-center space-x-20">
-              <PersonCard 
-                name="Mecca" 
-                role="Secretary 1" 
-                icon={BookOpen}
-                delay={300}
-                isLeader={true}
-              />
-              <PersonCard 
-                name="Keisha" 
-                role="Secretary 2" 
-                icon={BookOpen}
-                delay={400}
-                isLeader={true}
-              />
+          <div className="flex flex-col items-center relative w-full max-w-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-6 sm:space-y-0 sm:space-x-12 lg:space-x-20 w-full">
+              <div className="flex-1 flex justify-center">
+                <PersonCard 
+                  name="Mecca" 
+                  role="Secretary 1" 
+                  icon={BookOpen}
+                  delay={300}
+                  isLeader={true}
+                />
+              </div>
+              <div className="flex-1 flex justify-center">
+                <PersonCard 
+                  name="Keisha" 
+                  role="Secretary 2" 
+                  icon={BookOpen}
+                  delay={400}
+                  isLeader={true}
+                />
+              </div>
             </div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-20 h-px bg-gradient-to-r from-white/20 via-white/40 to-white/20"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white/40 rounded-full"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden sm:block">
+              <div className="w-12 lg:w-20 h-px bg-gradient-to-r from-white/20 via-white/40 to-white/20"></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/40 rounded-full"></div>
             </div>
           </div>
 
           {/* Connection to treasurers */}
           <div className="flex flex-col items-center">
-            <div className="w-px h-8 bg-gradient-to-b from-white/30 to-white/20"></div>
-            <div className="w-2 h-2 bg-white/30 rounded-full"></div>
-            <div className="w-px h-4 bg-gradient-to-b from-white/20 to-white/10"></div>
+            <div className="w-px h-6 sm:h-8 bg-gradient-to-b from-white/30 to-white/20"></div>
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/30 rounded-full"></div>
+            <div className="w-px h-3 sm:h-4 bg-gradient-to-b from-white/20 to-white/10"></div>
           </div>
 
           {/* Level 4: Treasurers */}
-          <div className="flex flex-col items-center relative">
-            <div className="flex items-center justify-center space-x-20">
-              <PersonCard 
-                name="Fairuz" 
-                role="Treasurer 1" 
-                icon={DollarSign}
-                delay={500}
-                isLeader={true}
-              />
-              <PersonCard 
-                name="Kania" 
-                role="Treasurer 2" 
-                icon={DollarSign}
-                delay={600}
-                isLeader={true}
-              />
+          <div className="flex flex-col items-center relative w-full max-w-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-6 sm:space-y-0 sm:space-x-12 lg:space-x-20 w-full">
+              <div className="flex-1 flex justify-center">
+                <PersonCard 
+                  name="Fairuz" 
+                  role="Treasurer 1" 
+                  icon={DollarSign}
+                  delay={500}
+                  isLeader={true}
+                />
+              </div>
+              <div className="flex-1 flex justify-center">
+                <PersonCard 
+                  name="Kania" 
+                  role="Treasurer 2" 
+                  icon={DollarSign}
+                  delay={600}
+                  isLeader={true}
+                />
+              </div>
             </div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-20 h-px bg-gradient-to-r from-white/20 via-white/40 to-white/20"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white/40 rounded-full"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden sm:block">
+              <div className="w-12 lg:w-20 h-px bg-gradient-to-r from-white/20 via-white/40 to-white/20"></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/40 rounded-full"></div>
             </div>
           </div>
 
           {/* Connection to discipline committee */}
           <div className="flex flex-col items-center">
-            <div className="w-px h-8 bg-gradient-to-b from-white/30 to-white/20"></div>
-            <div className="w-2 h-2 bg-white/30 rounded-full"></div>
-            <div className="w-px h-4 bg-gradient-to-b from-white/20 to-white/10"></div>
+            <div className="w-px h-6 sm:h-8 bg-gradient-to-b from-white/30 to-white/20"></div>
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/30 rounded-full"></div>
+            <div className="w-px h-3 sm:h-4 bg-gradient-to-b from-white/20 to-white/10"></div>
           </div>
 
           {/* Level 5: Discipline Committee */}
-          <div className="flex flex-col items-center mb-8 relative">
-            <h3 className="text-lg font-light text-white/80 uppercase tracking-widest mb-8 relative">
+          <div className="flex flex-col items-center mb-6 sm:mb-8 relative w-full">
+            <h3 className="text-base sm:text-lg font-light text-white/80 uppercase tracking-widest mb-6 sm:mb-8 relative">
               P Diddy
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 sm:w-16 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
             </h3>
-            <div className="flex items-center justify-center space-x-12 relative">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-12 w-full max-w-4xl relative">
               <PersonCard 
                 name="Fredy" 
                 role="Discipline" 
@@ -221,30 +233,30 @@ export default function ClassStructure() {
                 isLeader={true}
               />
             </div>
-            {/* Enhanced connection lines between discipline members */}
-            <div className="absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            {/* Enhanced connection lines between discipline members - hidden on mobile */}
+            <div className="absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden lg:block">
               <div className="flex items-center space-x-12">
-                <div className="w-12 h-px bg-gradient-to-r from-white/10 to-white/30"></div>
-                <div className="w-12 h-px bg-gradient-to-r from-white/30 to-white/30"></div>
-                <div className="w-12 h-px bg-gradient-to-r from-white/30 to-white/10"></div>
+                <div className="w-6 lg:w-12 h-px bg-gradient-to-r from-white/10 to-white/30"></div>
+                <div className="w-6 lg:w-12 h-px bg-gradient-to-r from-white/30 to-white/30"></div>
+                <div className="w-6 lg:w-12 h-px bg-gradient-to-r from-white/30 to-white/10"></div>
               </div>
             </div>
           </div>
 
           {/* Final connection to students */}
           <div className="flex flex-col items-center">
-            <div className="w-px h-12 bg-gradient-to-b from-white/30 to-white/10"></div>
-            <div className="w-3 h-3 bg-gradient-to-br from-white/40 to-white/20 rounded-full"></div>
-            <div className="w-px h-6 bg-gradient-to-b from-white/10 to-transparent"></div>
+            <div className="w-px h-8 sm:h-12 bg-gradient-to-b from-white/30 to-white/10"></div>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-br from-white/40 to-white/20 rounded-full"></div>
+            <div className="w-px h-4 sm:h-6 bg-gradient-to-b from-white/10 to-transparent"></div>
           </div>
 
           {/* Level 6: Class Members */}
-          <div className="flex flex-col items-center">
-            <h3 className="text-lg font-light text-white/80 uppercase tracking-widest mb-8 relative">
+          <div className="flex flex-col items-center w-full">
+            <h3 className="text-base sm:text-lg font-light text-white/80 uppercase tracking-widest mb-6 sm:mb-8 relative">
               Class Members
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 sm:w-20 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
             </h3>
-            <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-6 max-w-6xl">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 sm:gap-4 lg:gap-6 w-full max-w-6xl">
               {students.map((student, index) => (
                 <PersonCard 
                   key={student}
@@ -259,13 +271,13 @@ export default function ClassStructure() {
 
           {/* Enhanced Total Count */}
           <div 
-            className={`mt-16 text-center transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+            className={`mt-12 sm:mt-16 text-center transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
             style={{ transitionDelay: '2500ms' }}
           >
-            <div className="border-2 border-white/30 bg-gradient-to-br from-white/5 to-transparent px-8 py-4 inline-block relative">
+            <div className="border-2 border-white/30 bg-gradient-to-br from-white/5 to-transparent px-6 sm:px-8 py-3 sm:py-4 inline-block relative">
               <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-              <p className="text-white/70 text-base uppercase tracking-widest">
-                Total Students: <span className="text-white font-medium text-xl">35</span>
+              <p className="text-white/70 text-sm sm:text-base uppercase tracking-widest">
+                Total Students: <span className="text-white font-medium text-lg sm:text-xl">35</span>
               </p>
               <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
             </div>
@@ -273,7 +285,7 @@ export default function ClassStructure() {
         </div>
 
         {/* Bottom Border */}
-        <div className="mt-16 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        <div className="mt-12 sm:mt-16 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
       </div>
     </div>
   );
