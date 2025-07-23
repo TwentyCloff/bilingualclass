@@ -34,7 +34,7 @@ export default function Confess() {
     try {
       await addDoc(collection(db, 'confessions'), {
         message,
-        name,
+        name: name || 'Anonymous',
         type,
         createdAt: serverTimestamp()
       });
@@ -47,6 +47,18 @@ export default function Confess() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'Just now';
+    const date = timestamp.toDate();
+    return date.toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -65,42 +77,44 @@ export default function Confess() {
         {/* Back Button */}
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center text-gray-400 hover:text-white mb-8 transition-all duration-300"
+          className="flex items-center text-gray-400 hover:text-white mb-8 transition-all duration-300 group"
         >
-          <ArrowLeft className="w-5 h-5 mr-2" />
+          <ArrowLeft className="w-5 h-5 mr-2 group-hover:transform group-hover:-translate-x-1 transition-transform" />
           Back
         </button>
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-light tracking-wider mb-4">Confess</h1>
-          <div className="w-24 h-px bg-white mx-auto mb-6"></div>
-          <p className="text-gray-400">Share your thoughts anonymously</p>
+          <h1 className="text-4xl md:text-5xl font-light tracking-wider mb-4 bg-gradient-to-r from-white via-white/80 to-white/60 bg-clip-text text-transparent">
+            Confess
+          </h1>
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-white to-transparent mx-auto mb-6"></div>
+          <p className="text-gray-400 font-light">Share your thoughts anonymously</p>
         </div>
 
         {/* Confession Form */}
         <form onSubmit={handleSubmit} className="space-y-6 mb-12">
           <div className="group">
-            <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider">
-              Your Name (admin only)
+            <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
+              Your Name (for admin only)
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-black border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
-              placeholder="Optional"
+              className="w-full bg-black/50 border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 focus:bg-black/70 transition-all duration-300 backdrop-blur-sm"
+              placeholder="Optional - will be anonymous to others"
             />
           </div>
 
           <div className="group">
-            <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider">
-              Type
+            <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
+              Category
             </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full bg-black border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
+              className="w-full bg-black/50 border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 focus:bg-black/70 transition-all duration-300 backdrop-blur-sm"
             >
               <option value="class">Class</option>
               <option value="people">People</option>
@@ -111,14 +125,14 @@ export default function Confess() {
           </div>
 
           <div className="group">
-            <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider">
+            <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
               Your Message
             </label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full bg-black border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 transition-all min-h-[120px]"
-              placeholder="Write your confession..."
+              className="w-full bg-black/50 border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 focus:bg-black/70 transition-all duration-300 min-h-[120px] backdrop-blur-sm resize-none"
+              placeholder="Write your confession or thoughts here..."
               required
             />
           </div>
@@ -126,14 +140,17 @@ export default function Confess() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full flex justify-center items-center py-3 px-4 border border-white/20 rounded-lg uppercase tracking-wider text-sm font-medium transition-all ${
+            className={`w-full flex justify-center items-center py-3 px-4 border border-white/20 rounded-lg uppercase tracking-wider text-sm font-medium transition-all duration-300 ${
               isSubmitting
-                ? 'bg-white/10 text-white/50'
-                : 'bg-white/5 text-white/80 hover:bg-white/10 hover:text-white hover:border-white/40'
+                ? 'bg-white/10 text-white/50 cursor-not-allowed'
+                : 'bg-white/5 text-white/80 hover:bg-white/10 hover:text-white hover:border-white/40 hover:shadow-lg hover:shadow-white/10'
             }`}
           >
             {isSubmitting ? (
-              'Sending...'
+              <>
+                <div className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Sending...
+              </>
             ) : (
               <>
                 <Send className="w-4 h-4 mr-2" />
@@ -150,27 +167,40 @@ export default function Confess() {
             Recent Confessions
           </h2>
           
-          <div className="space-y-4">
-            {messages.map((msg) => (
-              <div key={msg.id} className="border border-white/10 p-4 rounded-lg">
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-gray-400 uppercase tracking-wider">
-                    {msg.type}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {msg.createdAt?.toDate()?.toLocaleString() || 'Just now'}
-                  </span>
-                </div>
-                <p className="text-white/80">{msg.message}</p>
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {messages.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                <p>No confessions yet. Be the first to share!</p>
               </div>
-            ))}
+            ) : (
+              messages.map((msg) => (
+                <div key={msg.id} className="border border-white/10 p-4 rounded-lg bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-xs text-gray-400 uppercase tracking-wider bg-white/5 px-2 py-1 rounded">
+                      {msg.type}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {formatDate(msg.createdAt)}
+                    </span>
+                  </div>
+                  <p className="text-white/80 leading-relaxed">{msg.message}</p>
+                  <div className="mt-2 text-xs text-gray-500">
+                    - Anonymous
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         {/* Success Popup */}
         {showPopup && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black border border-white/20 px-6 py-3 rounded-lg shadow-lg z-50 animate-bounce">
-            <p className="text-white">Confession submitted anonymously!</p>
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black/90 border border-green-500/30 px-6 py-3 rounded-lg shadow-lg z-50 backdrop-blur-md">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+              <p className="text-green-400">Confession submitted anonymously!</p>
+            </div>
           </div>
         )}
       </div>
