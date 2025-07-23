@@ -15,7 +15,11 @@ export default function AdminConfessions() {
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const confessionsData = [];
       querySnapshot.forEach((doc) => {
-        confessionsData.push({ id: doc.id, ...doc.data() });
+        confessionsData.push({ 
+          id: doc.id, 
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate() 
+        });
       });
       setConfessions(confessionsData);
       setLoading(false);
@@ -36,10 +40,6 @@ export default function AdminConfessions() {
       <div className="absolute top-6 right-6 w-8 h-8 border-t border-r border-white/20"></div>
       <div className="absolute bottom-6 left-6 w-8 h-8 border-b border-l border-white/20"></div>
       <div className="absolute bottom-6 right-6 w-8 h-8 border-b border-r border-white/20"></div>
-
-      {/* Border Elements */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
       <div className="relative z-10 px-6 py-20 max-w-4xl mx-auto">
         {/* Back Button */}
@@ -72,12 +72,10 @@ export default function AdminConfessions() {
                     <span className="text-xs bg-white/10 px-2 py-1 rounded mr-2">
                       {confession.type}
                     </span>
-                    {confession.name && (
-                      <span className="text-sm text-yellow-400">From: {confession.name}</span>
-                    )}
+                    <span className="text-sm text-yellow-400">From: {confession.name}</span>
                   </div>
                   <span className="text-xs text-gray-400">
-                    {confession.createdAt?.toDate()?.toLocaleString() || 'Unknown date'}
+                    {confession.createdAt?.toLocaleString() || 'Unknown date'}
                   </span>
                 </div>
                 <p className="text-white/80 mb-3">{confession.message}</p>
