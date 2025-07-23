@@ -12,6 +12,8 @@ import Contact from "./components/Contact";
 import Birthday from "./components/Birthday";
 import SignIn from "./components/Auth";
 import Achievment from "./components/Achievment";
+import Confess from "./components/Confess";
+import AdminConfessions from "./components/AdminConfessions";
 
 const Home = () => (
   <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
