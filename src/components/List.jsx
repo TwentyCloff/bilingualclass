@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Edit3, ExternalLink, Package, Tag } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit3, ExternalLink, Package, Tag, DollarSign } from 'lucide-react';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
@@ -12,6 +12,7 @@ export default function List() {
   const [editingId, setEditingId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
+  const [totalPrice, setTotalPrice] = useState(0);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -37,15 +38,20 @@ export default function List() {
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
         const itemsList = [];
+        let runningTotal = 0;
+        
         querySnapshot.forEach((doc) => {
-          itemsList.push({ 
+          const item = { 
             id: doc.id, 
             ...doc.data(),
-            // Cache the converted date to avoid repeated conversions
             createdAt: doc.data().createdAt?.toDate?.() || null
-          });
+          };
+          itemsList.push(item);
+          runningTotal += (item.price * (item.quantity || 1));
         });
+        
         setItems(itemsList);
+        setTotalPrice(runningTotal);
       },
       (error) => {
         console.error("Error loading items:", error);
@@ -158,6 +164,26 @@ export default function List() {
     }
   };
 
+  // Calculate total by category
+  const getCategoryTotals = () => {
+    const categoryMap = {};
+    
+    items.forEach(item => {
+      if (!categoryMap[item.category]) {
+        categoryMap[item.category] = 0;
+      }
+      categoryMap[item.category] += (item.price * (item.quantity || 1));
+    });
+    
+    return Object.entries(categoryMap).map(([category, total]) => ({
+      category,
+      total,
+      percentage: (total / totalPrice) * 100
+    })).sort((a, b) => b.total - a.total);
+  };
+
+  const categoryTotals = getCategoryTotals();
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Corner Elements */}
@@ -165,6 +191,50 @@ export default function List() {
       <div className="absolute top-6 right-6 w-8 h-8 border-t border-r border-white/20"></div>
       <div className="absolute bottom-6 left-6 w-8 h-8 border-b border-l border-white/20"></div>
       <div className="absolute bottom-6 right-6 w-8 h-8 border-b border-r border-white/20"></div>
+
+      {/* Floating Total Price */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="bg-gradient-to-br from-purple-600 to-blue-500 p-4 rounded-xl shadow-2xl border border-white/20 backdrop-blur-sm">
+          <div className="flex items-center">
+            <div className="bg-white/20 p-2 rounded-lg mr-3">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-white/80">Total Value</p>
+              <p className="text-2xl font-bold">{formatPrice(totalPrice)}</p>
+            </div>
+          </div>
+          <div className="mt-2 text-xs text-white/60">
+            {items.length} items • {categoryTotals.length} categories
+          </div>
+          
+          {/* Category breakdown tooltip on hover */}
+          <div className="group relative mt-2">
+            <div className="text-xs bg-white/10 px-2 py-1 rounded cursor-help">
+              View breakdown
+            </div>
+            <div className="absolute bottom-full right-0 mb-2 w-64 bg-black/90 border border-white/20 rounded-lg p-3 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+              <h4 className="text-sm font-medium mb-2">Spending by Category</h4>
+              <div className="space-y-2">
+                {categoryTotals.map((cat) => (
+                  <div key={cat.category} className="text-xs">
+                    <div className="flex justify-between mb-1">
+                      <span>{cat.category}</span>
+                      <span>{formatPrice(cat.total)}</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-1.5">
+                      <div 
+                        className="bg-gradient-to-r from-purple-400 to-blue-400 h-1.5 rounded-full" 
+                        style={{ width: `${cat.percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="relative z-10 px-6 py-20 max-w-4xl mx-auto">
         {/* Header */}
@@ -369,13 +439,15 @@ export default function List() {
                     
                     <div className="flex items-center space-x-4 mb-2">
                       <span className="text-2xl font-light text-green-400">
-                        {formatPrice(item.price)}
+                        {formatPrice(item.price * (item.quantity || 1))}
                       </span>
+                      {item.quantity > 1 && (
+                        <span className="text-sm text-gray-400">
+                          ({item.quantity} × {formatPrice(item.price)})
+                        </span>
+                      )}
                       <span className="text-sm text-gray-400 bg-white/5 px-2 py-1 rounded">
                         {item.category}
-                      </span>
-                      <span className="text-sm text-gray-400">
-                        Qty: {item.quantity}
                       </span>
                     </div>
                     
