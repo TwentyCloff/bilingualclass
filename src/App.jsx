@@ -1,7 +1,7 @@
 // src/App.jsx
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, Gift, Mail, X } from "lucide-react";
+import { Menu, Gift, Mail, X, Heart } from "lucide-react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebaseConfig";
 import Hero from "./components/Hero";
@@ -112,43 +112,83 @@ const App = () => {
       <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={toggleMenu}
-          className="w-14 h-14 rounded-full bg-black border border-white/20 flex items-center justify-center shadow-lg hover:bg-white/10 transition-all"
+          className="w-14 h-14 rounded-full bg-black border border-white/20 flex items-center justify-center shadow-lg hover:bg-white/10 transition-all duration-300 transform hover:scale-110"
         >
-          {isMenuOpen ? (
-            <X className="w-6 h-6 text-white" />
-          ) : (
-            <Menu className="w-6 h-6 text-white" />
-          )}
+          <div className={`transform transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : 'rotate-0'}`}>
+            {isMenuOpen ? (
+              <X className="w-6 h-6 text-white" />
+            ) : (
+              <Menu className="w-6 h-6 text-white" />
+            )}
+          </div>
         </button>
 
         {/* Popup Menu */}
-        {isMenuOpen && (
-          <div className="absolute bottom-16 right-0 w-48 bg-black border border-white/20 rounded-lg shadow-lg overflow-hidden">
+        <div className={`absolute bottom-16 right-0 w-48 bg-black border border-white/20 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 origin-bottom-right ${
+          isMenuOpen 
+            ? 'opacity-100 scale-100 translate-y-0' 
+            : 'opacity-0 scale-95 translate-y-2 pointer-events-none'
+        }`}>
+          <button
+            onClick={() => navigateTo("/confess")}
+            style={{ animationDelay: '50ms' }}
+            className={`w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all duration-200 transform ${
+              isMenuOpen ? 'animate-slide-in-right' : ''
+            }`}
+          >
+            <Heart className="w-5 h-5 mr-3 text-red-400" />
+            <span>Confess</span>
+          </button>
+          <button
+            onClick={() => navigateTo("/birthday")}
+            style={{ animationDelay: '100ms' }}
+            className={`w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all duration-200 border-t border-white/10 transform ${
+              isMenuOpen ? 'animate-slide-in-right' : ''
+            }`}
+          >
+            <Gift className="w-5 h-5 mr-3 text-pink-400" />
+            <span>Birthday</span>
+          </button>
+          <button
+            onClick={() => navigateTo("/contact")}
+            style={{ animationDelay: '150ms' }}
+            className={`w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all duration-200 border-t border-white/10 transform ${
+              isMenuOpen ? 'animate-slide-in-right' : ''
+            }`}
+          >
+            <Mail className="w-5 h-5 mr-3 text-blue-400" />
+            <span>Contact</span>
+          </button>
+          {!user && (
             <button
-              onClick={() => navigateTo("/birthday")}
-              className="w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all"
+              onClick={() => navigateTo("/")}
+              style={{ animationDelay: '200ms' }}
+              className={`w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all duration-200 border-t border-white/10 text-sm text-yellow-400 transform ${
+                isMenuOpen ? 'animate-slide-in-right' : ''
+              }`}
             >
-              <Gift className="w-5 h-5 mr-3 text-pink-400" />
-              <span>Birthday</span>
+              Sign In Required
             </button>
-            <button
-              onClick={() => navigateTo("/contact")}
-              className="w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all border-t border-white/10"
-            >
-              <Mail className="w-5 h-5 mr-3 text-blue-400" />
-              <span>Contact</span>
-            </button>
-            {!user && (
-              <button
-                onClick={() => navigateTo("/")}
-                className="w-full px-4 py-3 flex items-center hover:bg-white/10 transition-all border-t border-white/10 text-sm text-yellow-400"
-              >
-                Sign In Required
-              </button>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slide-in-right {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        .animate-slide-in-right {
+          animation: slide-in-right 0.3s ease-out forwards;
+        }
+      `}</style>
     </>
   );
 };
