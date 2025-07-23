@@ -10,6 +10,7 @@ const achievementsData = [
         type: "video",
         url: "https://res.cloudinary.com/dc3bfhgfd/video/upload/v1753262478/WhatsApp_Video_2025-07-23_at_16.20.25_dff14e35_abptbu.mp4",
         title: "CodeCamp Reward"
+      }
     ]
   },
   {
