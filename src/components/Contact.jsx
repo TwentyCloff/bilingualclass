@@ -20,10 +20,10 @@ export default function Contact() {
     { name: "SANNUR SIREGAR, S.Pd", phone: "+62 813-4825-6859" },
     { name: "MUHAMMAD SABHAN NURDIANSYAH, S.Pd", phone: "+62 896-2656-2520" },
     { name: "ALEX DANAN SUNTADI, S.Pd", phone: "" },
-    { name: "UTIN ERLIANA, S.Pd", phone: "" },
+    { name: "UTIN ERLIANA, S.Pd", phone: "+62 853-9104-5594" },
     { name: "FITRI ANNISA, S.Pd", phone: "+62 895-2705-3856" },
     { name: "EVIN NURIZKI", phone: "+62 895-3504-48645" },
-    { name: "SITI MARYAM, S.Pd.I", phone: "" },
+    { name: "SITI MARYAM, S.Pd.I", phone: "+62 852-4583-3784" },
     { name: "ADELIA RIZKA SUWANDA, S.Pd", phone: "+62 896-9353-6750" }
   ];
 
