@@ -1,4 +1,3 @@
-// src/components/Confess.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Send, MessageSquare } from 'lucide-react';
@@ -14,6 +13,7 @@ export default function Confess() {
   const [showPopup, setShowPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Realtime messages listener
   useEffect(() => {
     const q = query(collection(db, 'confessions'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -22,7 +22,10 @@ export default function Confess() {
         msgs.push({ id: doc.id, ...doc.data() });
       });
       setMessages(msgs);
+    }, (error) => {
+      console.error("Error listening to realtime updates:", error);
     });
+    
     return () => unsubscribe();
   }, []);
 
@@ -32,12 +35,15 @@ export default function Confess() {
 
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'confessions'), {
-        message,
-        name: name || 'Anonymous',
+      const docRef = await addDoc(collection(db, 'confessions'), {
+        message: message.trim(),
+        name: name.trim() || 'Anonymous',
         type,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        status: 'active'
       });
+      
+      console.log("Document written with ID: ", docRef.id);
       setMessage('');
       setName('');
       setShowPopup(true);
@@ -139,7 +145,7 @@ export default function Confess() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !message.trim()}
             className={`w-full flex justify-center items-center py-3 px-4 border border-white/20 rounded-lg uppercase tracking-wider text-sm font-medium transition-all duration-300 ${
               isSubmitting
                 ? 'bg-white/10 text-white/50 cursor-not-allowed'
@@ -167,14 +173,14 @@ export default function Confess() {
             Recent Confessions
           </h2>
           
-          <div className="space-y-4 max-h-96 overflow-y-auto">
+          <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
             {messages.length === 0 ? (
               <div className="text-center py-8 text-gray-400">
                 <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-30" />
                 <p>No confessions yet. Be the first to share!</p>
               </div>
             ) : (
-              messages.map((msg) => (
+              messages.filter(msg => msg.status !== 'deleted').map((msg) => (
                 <div key={msg.id} className="border border-white/10 p-4 rounded-lg bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300">
                   <div className="flex justify-between items-start mb-3">
                     <span className="text-xs text-gray-400 uppercase tracking-wider bg-white/5 px-2 py-1 rounded">
@@ -196,7 +202,7 @@ export default function Confess() {
 
         {/* Success Popup */}
         {showPopup && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black/90 border border-green-500/30 px-6 py-3 rounded-lg shadow-lg z-50 backdrop-blur-md">
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black/90 border border-green-500/30 px-6 py-3 rounded-lg shadow-lg z-50 backdrop-blur-md animate-fade-in">
             <div className="flex items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></div>
               <p className="text-green-400">Confession submitted anonymously!</p>
