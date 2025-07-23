@@ -19,7 +19,11 @@ export default function Confess() {
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const msgs = [];
       querySnapshot.forEach((doc) => {
-        msgs.push({ id: doc.id, ...doc.data() });
+        msgs.push({ 
+          id: doc.id, 
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate() 
+        });
       });
       setMessages(msgs);
     });
@@ -34,7 +38,7 @@ export default function Confess() {
     try {
       await addDoc(collection(db, 'confessions'), {
         message,
-        name,
+        name: name.trim() || 'Anonymous',
         type,
         createdAt: serverTimestamp()
       });
@@ -57,10 +61,6 @@ export default function Confess() {
       <div className="absolute bottom-6 left-6 w-8 h-8 border-b border-l border-white/20"></div>
       <div className="absolute bottom-6 right-6 w-8 h-8 border-b border-r border-white/20"></div>
 
-      {/* Border Elements */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-
       <div className="relative z-10 px-6 py-20 max-w-2xl mx-auto">
         {/* Back Button */}
         <button 
@@ -70,13 +70,6 @@ export default function Confess() {
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back
         </button>
-
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-light tracking-wider mb-4">Confess</h1>
-          <div className="w-24 h-px bg-white mx-auto mb-6"></div>
-          <p className="text-gray-400">Share your thoughts anonymously</p>
-        </div>
 
         {/* Confession Form */}
         <form onSubmit={handleSubmit} className="space-y-6 mb-12">
@@ -132,14 +125,7 @@ export default function Confess() {
                 : 'bg-white/5 text-white/80 hover:bg-white/10 hover:text-white hover:border-white/40'
             }`}
           >
-            {isSubmitting ? (
-              'Sending...'
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Submit Confession
-              </>
-            )}
+            {isSubmitting ? 'Sending...' : 'Submit Confession'}
           </button>
         </form>
 
@@ -158,7 +144,7 @@ export default function Confess() {
                     {msg.type}
                   </span>
                   <span className="text-xs text-gray-400">
-                    {msg.createdAt?.toDate()?.toLocaleString() || 'Just now'}
+                    {msg.createdAt?.toLocaleString() || 'Just now'}
                   </span>
                 </div>
                 <p className="text-white/80">{msg.message}</p>
