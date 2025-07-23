@@ -3,27 +3,22 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-// API
+
+// Pakai variabel dari .env
 const firebaseConfig = {
-  apiKey: "AIzaSyDaZOiTdGyWfe6DeEcB8CB2-tNa6zAM7J0",
-  authDomain: "smanpulbilingual.firebaseapp.com",
-  projectId: "smanpulbilingual",
-  storageBucket: "smanpulbilingual.appspot.com",
-  messagingSenderId: "994746803872",
-  appId: "1:994746803872:web:68b2d21d9fa5eab5a44bc5",
-  measurementId: "G-QLVBM32GB6"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
+// Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Authentication
 const auth = getAuth(app);
-
-// Initialize Firestore
 const db = getFirestore(app);
-
-// Initialize Firebase Storage
 const storage = getStorage(app);
 
 export { auth, app, db, storage };
