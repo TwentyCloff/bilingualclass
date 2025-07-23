@@ -14,8 +14,8 @@ export default function ClassStructure() {
 
   // Students who are not in leadership positions
   const students = [
-    "Aurelia", "Chalisa", "Dahlia", "Danu", "Fiqry", "Falan", "Fathul", 
-    "Firly", "Hayyu", "Jessica", "Kalinda", "Laras", "Lukas", "Fakhar", 
+    "Aurelia", "Chalisa", "Danu", "Fiqry", "Falan", "Fathul", 
+    "Firly", "Hayyu", "Jessica", "Laras", "Lukas", "Fakhar", 
     "Firza", "Nazwa", "Quinsha", "Aisy", "Salsabiela", "Shabrina", "Shafira", 
     "Humaira", "Tiara", "Utin", "Willy"
   ];
@@ -203,7 +203,7 @@ export default function ClassStructure() {
               P Diddy
               <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 sm:w-16 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-12 w-full max-w-4xl relative">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6 lg:gap-8 w-full max-w-5xl relative">
               <PersonCard 
                 name="Fredy" 
                 role="Discipline" 
@@ -232,13 +232,29 @@ export default function ClassStructure() {
                 delay={1000}
                 isLeader={true}
               />
+              <PersonCard 
+                name="Dahlia" 
+                role="Discipline" 
+                icon={Shield}
+                delay={1100}
+                isLeader={true}
+              />
+              <PersonCard 
+                name="Kalinda" 
+                role="Discipline" 
+                icon={Shield}
+                delay={1200}
+                isLeader={true}
+              />
             </div>
             {/* Enhanced connection lines between discipline members - hidden on mobile */}
-            <div className="absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden lg:block">
-              <div className="flex items-center space-x-12">
-                <div className="w-6 lg:w-12 h-px bg-gradient-to-r from-white/10 to-white/30"></div>
-                <div className="w-6 lg:w-12 h-px bg-gradient-to-r from-white/30 to-white/30"></div>
-                <div className="w-6 lg:w-12 h-px bg-gradient-to-r from-white/30 to-white/10"></div>
+            <div className="absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden xl:block">
+              <div className="flex items-center space-x-8">
+                <div className="w-4 lg:w-8 h-px bg-gradient-to-r from-white/10 to-white/30"></div>
+                <div className="w-4 lg:w-8 h-px bg-gradient-to-r from-white/30 to-white/30"></div>
+                <div className="w-4 lg:w-8 h-px bg-gradient-to-r from-white/30 to-white/30"></div>
+                <div className="w-4 lg:w-8 h-px bg-gradient-to-r from-white/30 to-white/30"></div>
+                <div className="w-4 lg:w-8 h-px bg-gradient-to-r from-white/30 to-white/10"></div>
               </div>
             </div>
           </div>
@@ -263,7 +279,7 @@ export default function ClassStructure() {
                   name={student} 
                   role="Student" 
                   icon={Users}
-                  delay={1100 + (index * 50)}
+                  delay={1300 + (index * 50)}
                 />
               ))}
             </div>
