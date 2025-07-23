@@ -12,7 +12,6 @@ const achievementsData = [
         title: "CodeCamp Reward"
       }
     ]
-  }
   },
   {
     name: "Student",
