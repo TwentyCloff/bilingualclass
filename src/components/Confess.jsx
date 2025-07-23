@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Send, MessageSquare, User, Users, Hash } from 'lucide-react';
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
@@ -8,12 +8,28 @@ export default function Confess() {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [name, setName] = useState('');
-  const [type, setType] = useState('class');
+  const [kelas, setKelas] = useState('X A');
+  const [mention, setMention] = useState('');
+  const [mentionTarget, setMentionTarget] = useState('');
   const [messages, setMessages] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Realtime messages listener
+  // Generate kelas options: X A - XII J
+  const kelasOptions = [];
+  for (let level of ['X', 'XI', 'XII']) {
+    for (let kelas = 'A'; kelas <= 'J'; kelas = String.fromCharCode(kelas.charCodeAt(0) + 1)) {
+      kelasOptions.push(`${level} ${kelas}`);
+    }
+  }
+
+  const mentionOptions = [
+    { value: '', label: 'None' },
+    { value: 'people', label: 'People', icon: <User className="w-4 h-4 mr-2" /> },
+    { value: 'kelas', label: 'Class', icon: <Users className="w-4 h-4 mr-2" /> },
+    { value: 'other', label: 'Other', icon: <Hash className="w-4 h-4 mr-2" /> }
+  ];
+
   useEffect(() => {
     const q = query(collection(db, 'confessions'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -22,10 +38,7 @@ export default function Confess() {
         msgs.push({ id: doc.id, ...doc.data() });
       });
       setMessages(msgs);
-    }, (error) => {
-      console.error("Error listening to realtime updates:", error);
     });
-    
     return () => unsubscribe();
   }, []);
 
@@ -35,17 +48,22 @@ export default function Confess() {
 
     setIsSubmitting(true);
     try {
-      const docRef = await addDoc(collection(db, 'confessions'), {
+      await addDoc(collection(db, 'confessions'), {
         message: message.trim(),
         name: name.trim() || 'Anonymous',
-        type,
+        kelas,
+        mention: mention ? {
+          type: mention,
+          target: mentionTarget.trim()
+        } : null,
         createdAt: serverTimestamp(),
         status: 'active'
       });
       
-      console.log("Document written with ID: ", docRef.id);
       setMessage('');
       setName('');
+      setMention('');
+      setMentionTarget('');
       setShowPopup(true);
       setTimeout(() => setShowPopup(false), 3000);
     } catch (error) {
@@ -74,10 +92,6 @@ export default function Confess() {
       <div className="absolute top-6 right-6 w-8 h-8 border-t border-r border-white/20"></div>
       <div className="absolute bottom-6 left-6 w-8 h-8 border-b border-l border-white/20"></div>
       <div className="absolute bottom-6 right-6 w-8 h-8 border-b border-r border-white/20"></div>
-
-      {/* Border Elements */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
       <div className="relative z-10 px-6 py-20 max-w-2xl mx-auto">
         {/* Back Button */}
@@ -113,22 +127,58 @@ export default function Confess() {
             />
           </div>
 
-          <div className="group">
-            <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
-              Category
-            </label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full bg-black/50 border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 focus:bg-black/70 transition-all duration-300 backdrop-blur-sm"
-            >
-              <option value="class">Class</option>
-              <option value="people">People</option>
-              <option value="behave">Behavior</option>
-              <option value="confess">Confession</option>
-              <option value="other">Other</option>
-            </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="group">
+              <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
+                Your Class
+              </label>
+              <select
+                value={kelas}
+                onChange={(e) => setKelas(e.target.value)}
+                className="w-full bg-black/50 border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 focus:bg-black/70 transition-all duration-300 backdrop-blur-sm"
+              >
+                {kelasOptions.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="group">
+              <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
+                Mention
+              </label>
+              <select
+                value={mention}
+                onChange={(e) => setMention(e.target.value)}
+                className="w-full bg-black/50 border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 focus:bg-black/70 transition-all duration-300 backdrop-blur-sm"
+              >
+                {mentionOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {mention && (
+            <div className="group">
+              <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
+                Mention Target ({mention === 'people' ? 'Person Name' : mention === 'kelas' ? 'Class' : 'Other'})
+              </label>
+              <input
+                type="text"
+                value={mentionTarget}
+                onChange={(e) => setMentionTarget(e.target.value)}
+                className="w-full bg-black/50 border border-white/20 px-4 py-3 rounded-lg focus:outline-none focus:border-white/40 focus:bg-black/70 transition-all duration-300 backdrop-blur-sm"
+                placeholder={
+                  mention === 'people' ? 'Who do you want to mention?' :
+                  mention === 'kelas' ? 'Which class?' : 
+                  'Specify your mention'
+                }
+              />
+            </div>
+          )}
 
           <div className="group">
             <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
@@ -183,9 +233,16 @@ export default function Confess() {
               messages.filter(msg => msg.status !== 'deleted').map((msg) => (
                 <div key={msg.id} className="border border-white/10 p-4 rounded-lg bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300">
                   <div className="flex justify-between items-start mb-3">
-                    <span className="text-xs text-gray-400 uppercase tracking-wider bg-white/5 px-2 py-1 rounded">
-                      {msg.type}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-400 uppercase tracking-wider bg-white/5 px-2 py-1 rounded">
+                        {msg.kelas}
+                      </span>
+                      {msg.mention && (
+                        <span className="text-xs text-blue-400 bg-blue-400/10 px-2 py-1 rounded">
+                          {msg.mention.type}: {msg.mention.target}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs text-gray-400">
                       {formatDate(msg.createdAt)}
                     </span>
