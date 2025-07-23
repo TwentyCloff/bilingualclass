@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import Contact from "./components/Contact";
 import Birthday from "./components/Birthday";
 import SignIn from "./components/Auth";
+import Achievment from "./components/Achievment";
 
 const Home = () => (
   <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
@@ -83,6 +84,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Sign-In" element={<SignIn />} />
+        <Route path="/Achievement" element={<Achievment />} />
         <Route 
           path="/contact" 
           element={
