@@ -86,7 +86,7 @@ export default function Navbar() {
               </button>
               
               <button 
-                onClick={() => handleNavigation('/achievement')}
+                onClick={() => handleNavigation('/Achievement')}
                 className="flex items-center space-x-2 text-white/60 hover:text-white transition-colors duration-300 text-sm uppercase tracking-wider"
               >
                 <Trophy className="w-4 h-4" />
