@@ -116,7 +116,7 @@ export default function Confess() {
         <form onSubmit={handleSubmit} className="space-y-6 mb-12">
           <div className="group">
             <label className="block text-sm text-gray-400 mb-2 uppercase tracking-wider font-light">
-              Your Name (for admin only)
+              Your Name (Only Admin Can See)
             </label>
             <input
               type="text"
