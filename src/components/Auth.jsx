@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuth, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from 'firebase/auth';
-import { Lock, Mail, Loader2, ChevronDown } from 'lucide-react';
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  setPersistence, 
+  browserLocalPersistence,
+  onAuthStateChanged
+} from 'firebase/auth';
+import { Lock, Mail, Loader2, ArrowLeft } from 'lucide-react';
 import { app } from '../config/firebaseConfig';
 
 const auth = getAuth(app);
@@ -17,7 +23,7 @@ export default function SignIn() {
   useEffect(() => {
     setIsVisible(true);
     // Check if user is already logged in
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribe = onAuthStateChanged(auth, user => {
       if (user) {
         navigate('/');
       }
@@ -31,8 +37,8 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      // Set session persistence
-      await setPersistence(auth, browserSessionPersistence);
+      // Set LOCAL persistence instead of SESSION
+      await setPersistence(auth, browserLocalPersistence);
       
       // Sign in with email and password
       await signInWithEmailAndPassword(auth, email, password);
@@ -76,9 +82,18 @@ export default function SignIn() {
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
       <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-20">
+      <div className="relative z-10 px-6 py-20 max-w-md mx-auto">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate(-1)}
+          className="flex items-center text-gray-400 hover:text-white mb-8 transition-all duration-300"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back
+        </button>
+
         {/* Sign In Form */}
-        <div className={`w-full max-w-md transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+        <div className={`transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-light tracking-wider mb-4">Sign In</h1>
@@ -160,13 +175,6 @@ export default function SignIn() {
               )}
             </button>
           </form>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-600 ${isVisible ? 'opacity-40' : 'opacity-0'}`}>
-          <div className="animate-bounce">
-            <ChevronDown className="w-6 h-6 text-white" />
-          </div>
         </div>
       </div>
     </div>
