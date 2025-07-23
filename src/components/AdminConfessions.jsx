@@ -1,8 +1,7 @@
-// src/components/ConfessAdmin.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MessageSquare, User, Filter, Trash2, Eye } from 'lucide-react';
-import { collection, onSnapshot, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
 export default function ConfessAdmin() {
@@ -13,24 +12,32 @@ export default function ConfessAdmin() {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
 
+  // Realtime messages listener with error handling
   useEffect(() => {
     const q = query(collection(db, 'confessions'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const msgs = [];
-      querySnapshot.forEach((doc) => {
-        msgs.push({ id: doc.id, ...doc.data() });
-      });
-      setMessages(msgs);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(q, 
+      (querySnapshot) => {
+        const msgs = [];
+        querySnapshot.forEach((doc) => {
+          msgs.push({ id: doc.id, ...doc.data() });
+        });
+        setMessages(msgs);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error listening to realtime updates:", error);
+        setLoading(false);
+      }
+    );
+    
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     if (selectedType === 'all') {
-      setFilteredMessages(messages);
+      setFilteredMessages(messages.filter(msg => msg.status !== 'deleted'));
     } else {
-      setFilteredMessages(messages.filter(msg => msg.type === selectedType));
+      setFilteredMessages(messages.filter(msg => msg.type === selectedType && msg.status !== 'deleted'));
     }
   }, [messages, selectedType]);
 
@@ -39,7 +46,11 @@ export default function ConfessAdmin() {
     
     setDeleteLoading(id);
     try {
-      await deleteDoc(doc(db, 'confessions', id));
+      // Soft delete by updating status
+      await updateDoc(doc(db, 'confessions', id), {
+        status: 'deleted',
+        deletedAt: serverTimestamp()
+      });
     } catch (error) {
       console.error('Error deleting confession:', error);
     } finally {
@@ -107,8 +118,8 @@ export default function ConfessAdmin() {
             <div className="flex items-center">
               <MessageSquare className="w-8 h-8 text-white/60 mr-3" />
               <div>
-                <p className="text-2xl font-light">{messages.length}</p>
-                <p className="text-sm text-gray-400 uppercase tracking-wider">Total Confessions</p>
+                <p className="text-2xl font-light">{messages.filter(m => m.status !== 'deleted').length}</p>
+                <p className="text-sm text-gray-400 uppercase tracking-wider">Active Confessions</p>
               </div>
             </div>
           </div>
@@ -146,7 +157,7 @@ export default function ConfessAdmin() {
               <p className="text-xl mb-2">No confessions found</p>
               <p className="text-sm">
                 {selectedType === 'all' 
-                  ? 'No confessions have been submitted yet.' 
+                  ? 'No active confessions available.' 
                   : `No confessions found for "${selectedType}" category.`
                 }
               </p>
@@ -204,7 +215,7 @@ export default function ConfessAdmin() {
         {/* Summary at bottom */}
         {!loading && filteredMessages.length > 0 && (
           <div className="mt-8 text-center text-sm text-gray-400">
-            Showing {filteredMessages.length} of {messages.length} confessions
+            Showing {filteredMessages.length} of {messages.filter(m => m.status !== 'deleted').length} active confessions
             {selectedType !== 'all' && ` in "${selectedType}" category`}
           </div>
         )}
