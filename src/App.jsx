@@ -14,6 +14,7 @@ import SignIn from "./components/Auth";
 import Achievment from "./components/Achievment";
 import Confess from "./components/Confess";
 import AdminConfessions from "./components/AdminConfessions";
+import List from "./components/List"
 
 const Home = () => (
   <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
@@ -89,6 +90,7 @@ const App = () => {
         <Route path="/Achievement" element={<Achievment />} />
         <Route path="/confess" element={<Confess />} />
         <Route path="/admin/confessions" element={<AdminConfessions />} />
+        <Route path="/list" element={<List />} />
         <Route 
           path="/contact" 
           element={
