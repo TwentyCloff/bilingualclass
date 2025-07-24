@@ -231,7 +231,7 @@ export default function ClassStructure() {
         >
           <h1 className="text-6xl font-light tracking-[0.2em] mb-6 text-white">
             <span className="relative">
-              ORGANIZATIONAL STRUCTURE
+              CLASS STRUCTURE
               <span className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-white/40 to-transparent"></span>
             </span>
           </h1>
