@@ -14,9 +14,10 @@ import SignIn from "./components/Auth";
 import Achievment from "./components/Achievment";
 import Confess from "./components/Confess";
 import AdminConfessions from "./components/AdminConfessions";
-import List from "./components/List"
-import Kas from "./components/Kas"
-import AdminKas from "./components/AdminKas"
+import List from "./components/List";
+import Kas from "./components/Kas";
+import AdminKas from "./components/AdminKas";
+import Note from "./components/Note";
 
 const Home = () => (
   <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
@@ -95,6 +96,7 @@ const App = () => {
         <Route path="/list" element={<List />} />
         <Route path="/kas" element={<Kas />} />
         <Route path="/manage/kas" element={<AdminKas />} />
+        <Route path="/notepad" element={<Note />} />
         <Route 
           path="/contact" 
           element={
