@@ -17,10 +17,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);         // Firestore database
+const db = getFirestore(app);      
 const storage = getStorage(app);
 
-const database = db; // Optional alias for compatibility
+const database = db;
 
 export {
   app,
@@ -28,5 +28,5 @@ export {
   db,
   storage,
   serverTimestamp,
-  database // <-- tambahkan ini kalau ada import { database } di file lain
+  database
 };
