@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { db } from './firebase';
+import { db } from '../config/firebaseConfig';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const names = [
