@@ -1,4 +1,4 @@
-// src/config/firebaseConfig.js
+\// src/config/firebaseConfig.js
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, serverTimestamp } from 'firebase/firestore';
@@ -17,7 +17,16 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getFirestore(app);         // Firestore database
 const storage = getStorage(app);
 
-export { app, auth, db, storage, serverTimestamp };
+const database = db; // Optional alias for compatibility
+
+export {
+  app,
+  auth,
+  db,
+  storage,
+  serverTimestamp,
+  database // <-- tambahkan ini kalau ada import { database } di file lain
+};
