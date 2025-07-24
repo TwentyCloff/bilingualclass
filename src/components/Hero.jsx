@@ -5,6 +5,26 @@ export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [glitchActive, setGlitchActive] = useState(false);
   const [scanlinePosition, setScanlinePosition] = useState(0);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  const chatMessages = [
+    {
+      question: "What is SMAN 10 Pontianak?",
+      answer: "SMAN 10 Pontianak is a leading high school in West Kalimantan that focuses on digital-based education and student talent development."
+    },
+    {
+      question: "Is this a digital-based school?",
+      answer: "Yes, SMAN 10 Pontianak is a digital-based school with modern facilities and technology-integrated learning methods."
+    },
+    {
+      question: "Does this school support student talents?",
+      answer: "Absolutely! SMAN 10 Pontianak has various extracurricular programs and facilities to support and develop student talents."
+    },
+    {
+      question: "Does this school have bilingual classes?",
+      answer: "Yes, we have bilingual classes including XI-A which implements English-Indonesian dual language instruction."
+    }
+  ];
 
   useEffect(() => {
     setIsVisible(true);
@@ -20,9 +40,15 @@ export default function Home() {
       setScanlinePosition(prev => (prev + 1) % 100);
     }, 50);
 
+    // Auto-scroll chat messages
+    const chatInterval = setInterval(() => {
+      setCurrentMessageIndex(prev => (prev + 1) % chatMessages.length);
+    }, 5000);
+
     return () => {
       clearInterval(glitchInterval);
       clearInterval(scanlineInterval);
+      clearInterval(chatInterval);
     };
   }, []);
 
@@ -73,12 +99,12 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-20">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 md:px-6 py-12 md:py-20">
         {/* Futuristic Title with Glitch Effect */}
-        <div className={`text-center mb-24 transform transition-all duration-2000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}>
-          <div className="relative mb-8">
+        <div className={`text-center mb-12 md:mb-24 transform transition-all duration-2000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}>
+          <div className="relative mb-6 md:mb-8">
             <div className="absolute -top-4 -left-4 text-cyan-400/30 text-xs tracking-widest">[INITIALIZING...]</div>
-            <h1 className={`text-9xl md:text-[14rem] font-black tracking-[0.3em] mb-6 relative ${glitchActive ? 'animate-pulse' : ''}`}>
+            <h1 className={`text-6xl md:text-9xl lg:text-[14rem] font-black tracking-[0.3em] mb-4 md:mb-6 relative ${glitchActive ? 'animate-pulse' : ''}`}>
               <span className="relative z-10 bg-gradient-to-r from-white via-cyan-200 to-white bg-clip-text text-transparent">
                 XI-A
               </span>
@@ -93,13 +119,13 @@ export default function Home() {
           </div>
 
           {/* Tech Divider */}
-          <div className="flex items-center justify-center gap-6 mb-10">
+          <div className="flex items-center justify-center gap-4 md:gap-6 mb-6 md:mb-10">
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className={`w-2 h-2 bg-cyan-400 ${i === 2 ? 'animate-ping' : 'animate-pulse'}`} style={{ animationDelay: `${i * 200}ms` }}></div>
               ))}
             </div>
-            <Terminal className="w-6 h-6 text-cyan-400 animate-pulse" />
+            <Terminal className="w-5 h-5 md:w-6 md:h-6 text-cyan-400 animate-pulse" />
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className={`w-2 h-2 bg-purple-400 ${i === 2 ? 'animate-ping' : 'animate-pulse'}`} style={{ animationDelay: `${i * 200}ms` }}></div>
@@ -108,36 +134,67 @@ export default function Home() {
           </div>
 
           <div className="relative">
-            <h2 className="text-3xl md:text-4xl font-light tracking-[0.5em] text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text uppercase">
-              <Globe className="inline w-8 h-8 mr-4 text-cyan-400 animate-spin" style={{ animationDuration: '8s' }} />
+            <h2 className="text-xl md:text-3xl lg:text-4xl font-light tracking-[0.5em] text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text uppercase">
+              <Globe className="inline w-5 h-5 md:w-8 md:h-8 mr-2 md:mr-4 text-cyan-400 animate-spin" style={{ animationDuration: '8s' }} />
               Bilingual.exe
             </h2>
-            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-cyan-400/60 text-xs tracking-widest animate-pulse">
+            <div className="absolute -bottom-4 md:-bottom-6 left-1/2 transform -translate-x-1/2 text-cyan-400/60 text-xs tracking-widest animate-pulse">
               {'>'} SYSTEM READY
             </div>
           </div>
         </div>
 
+        {/* AI Chat Browser Card */}
+        <div className={`w-full max-w-4xl mb-12 md:mb-20 transform transition-all duration-2000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}>
+          <div className="relative bg-black/90 border-2 border-purple-400/30 rounded-lg overflow-hidden">
+            {/* Browser Header */}
+            <div className="bg-gray-900/80 px-4 py-2 md:px-6 md:py-3 border-b border-purple-400/30 flex items-center gap-2 md:gap-4">
+              <div className="flex gap-1 md:gap-2">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full"></div>
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full"></div>
+              </div>
+              <div className="text-purple-400/80 text-xs md:text-sm font-mono truncate">neural_network://xi-a.class/chat_interface</div>
+            </div>
+            
+            {/* Chat Content */}
+            <div className="p-4 md:p-6">
+              <div className="mb-4">
+                <div className="text-purple-400 text-sm md:text-base font-mono mb-2 animate-fade-in">
+                  <span className="text-green-400">{'>'}</span> {chatMessages[currentMessageIndex].question}
+                </div>
+                <div className="text-cyan-300 text-sm md:text-base font-mono animate-fade-in">
+                  <span className="text-blue-400">{'>>'}</span> {chatMessages[currentMessageIndex].answer}
+                </div>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                <div className="text-green-400/60 text-xs md:text-sm font-mono">awaiting_next_query...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Cyberpunk Data Cards */}
-        <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 max-w-7xl w-full transform transition-all duration-2000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-12 md:mb-24 max-w-7xl w-full transform transition-all duration-2000 delay-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}>
           {/* Students Card */}
           <div className="group relative">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-            <div className="relative bg-black/80 border-2 border-cyan-400/30 rounded-lg p-8 backdrop-blur-sm transition-all duration-500 hover:border-cyan-400/60 hover:shadow-lg hover:shadow-cyan-400/20">
-              <div className="absolute top-2 right-2 w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
-              <div className="text-cyan-400/60 text-xs mb-4 tracking-widest">[DATA_NODE_01]</div>
+            <div className="relative bg-black/80 border-2 border-cyan-400/30 rounded-lg p-4 md:p-8 backdrop-blur-sm transition-all duration-500 hover:border-cyan-400/60 hover:shadow-lg hover:shadow-cyan-400/20">
+              <div className="absolute top-2 right-2 w-2 h-2 md:w-3 md:h-3 bg-cyan-400 rounded-full animate-ping"></div>
+              <div className="text-cyan-400/60 text-xs mb-2 md:mb-4 tracking-widest">[DATA_NODE_01]</div>
               
-              <div className="flex items-center justify-center mb-6">
-                <div className="w-20 h-20 border-2 border-cyan-400/50 rounded-full flex items-center justify-center relative group-hover:rotate-180 transition-transform duration-700">
-                  <Users className="w-10 h-10 text-cyan-400" />
+              <div className="flex items-center justify-center mb-4 md:mb-6">
+                <div className="w-12 h-12 md:w-20 md:h-20 border-2 border-cyan-400/50 rounded-full flex items-center justify-center relative group-hover:rotate-180 transition-transform duration-700">
+                  <Users className="w-6 h-6 md:w-10 md:h-10 text-cyan-400" />
                   <div className="absolute inset-0 border-2 border-cyan-400/20 rounded-full animate-spin" style={{ animationDuration: '3s' }}></div>
                 </div>
               </div>
               
               <div className="text-center">
-                <h3 className="text-5xl font-black mb-2 text-transparent bg-gradient-to-r from-cyan-400 to-white bg-clip-text">35</h3>
-                <p className="text-cyan-400/80 text-sm tracking-[0.3em] uppercase">STUDENTS</p>
-                <div className="mt-4 text-xs text-cyan-400/40 font-mono">{'>'} ACTIVE_USERS</div>
+                <h3 className="text-3xl md:text-5xl font-black mb-1 md:mb-2 text-transparent bg-gradient-to-r from-cyan-400 to-white bg-clip-text">35</h3>
+                <p className="text-cyan-400/80 text-xs md:text-sm tracking-[0.3em] uppercase">STUDENTS</p>
+                <div className="mt-2 md:mt-4 text-xs text-cyan-400/40 font-mono">{'>'} ACTIVE_USERS</div>
               </div>
             </div>
           </div>
@@ -145,21 +202,21 @@ export default function Home() {
           {/* Teacher Card */}
           <div className="group relative">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-            <div className="relative bg-black/80 border-2 border-purple-400/30 rounded-lg p-8 backdrop-blur-sm transition-all duration-500 hover:border-purple-400/60 hover:shadow-lg hover:shadow-purple-400/20">
-              <div className="absolute top-2 right-2 w-3 h-3 bg-purple-400 rounded-full animate-ping"></div>
-              <div className="text-purple-400/60 text-xs mb-4 tracking-widest">[ADMIN_ACCESS]</div>
+            <div className="relative bg-black/80 border-2 border-purple-400/30 rounded-lg p-4 md:p-8 backdrop-blur-sm transition-all duration-500 hover:border-purple-400/60 hover:shadow-lg hover:shadow-purple-400/20">
+              <div className="absolute top-2 right-2 w-2 h-2 md:w-3 md:h-3 bg-purple-400 rounded-full animate-ping"></div>
+              <div className="text-purple-400/60 text-xs mb-2 md:mb-4 tracking-widest">[ADMIN_ACCESS]</div>
               
-              <div className="flex items-center justify-center mb-6">
-                <div className="w-20 h-20 border-2 border-purple-400/50 rounded-full flex items-center justify-center relative group-hover:rotate-180 transition-transform duration-700">
-                  <Book className="w-10 h-10 text-purple-400" />
+              <div className="flex items-center justify-center mb-4 md:mb-6">
+                <div className="w-12 h-12 md:w-20 md:h-20 border-2 border-purple-400/50 rounded-full flex items-center justify-center relative group-hover:rotate-180 transition-transform duration-700">
+                  <Book className="w-6 h-6 md:w-10 md:h-10 text-purple-400" />
                   <div className="absolute inset-0 border-2 border-purple-400/20 rounded-full animate-spin" style={{ animationDuration: '3s' }}></div>
                 </div>
               </div>
               
               <div className="text-center">
-                <h3 className="text-xl font-bold mb-2 text-transparent bg-gradient-to-r from-purple-400 to-white bg-clip-text">Sir Amin S.Pd</h3>
-                <p className="text-purple-400/80 text-sm tracking-[0.3em] uppercase">ROOT_ADMIN</p>
-                <div className="mt-4 text-xs text-purple-400/40 font-mono">{'>'} HOMEROOM_TEACHER</div>
+                <h3 className="text-lg md:text-xl font-bold mb-1 md:mb-2 text-transparent bg-gradient-to-r from-purple-400 to-white bg-clip-text">Sir Amin S.Pd</h3>
+                <p className="text-purple-400/80 text-xs md:text-sm tracking-[0.3em] uppercase">ROOT_ADMIN</p>
+                <div className="mt-2 md:mt-4 text-xs text-purple-400/40 font-mono">{'>'} HOMEROOM_TEACHER</div>
               </div>
             </div>
           </div>
@@ -167,62 +224,62 @@ export default function Home() {
           {/* Academic Year Card */}
           <div className="group relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-            <div className="relative bg-black/80 border-2 border-blue-400/30 rounded-lg p-8 backdrop-blur-sm transition-all duration-500 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-400/20">
-              <div className="absolute top-2 right-2 w-3 h-3 bg-blue-400 rounded-full animate-ping"></div>
-              <div className="text-blue-400/60 text-xs mb-4 tracking-widest">[TIME_STAMP]</div>
+            <div className="relative bg-black/80 border-2 border-blue-400/30 rounded-lg p-4 md:p-8 backdrop-blur-sm transition-all duration-500 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-400/20">
+              <div className="absolute top-2 right-2 w-2 h-2 md:w-3 md:h-3 bg-blue-400 rounded-full animate-ping"></div>
+              <div className="text-blue-400/60 text-xs mb-2 md:mb-4 tracking-widest">[TIME_STAMP]</div>
               
-              <div className="flex items-center justify-center mb-6">
-                <div className="w-20 h-20 border-2 border-blue-400/50 rounded-full flex items-center justify-center relative group-hover:rotate-180 transition-transform duration-700">
-                  <Award className="w-10 h-10 text-blue-400" />
+              <div className="flex items-center justify-center mb-4 md:mb-6">
+                <div className="w-12 h-12 md:w-20 md:h-20 border-2 border-blue-400/50 rounded-full flex items-center justify-center relative group-hover:rotate-180 transition-transform duration-700">
+                  <Award className="w-6 h-6 md:w-10 md:h-10 text-blue-400" />
                   <div className="absolute inset-0 border-2 border-blue-400/20 rounded-full animate-spin" style={{ animationDuration: '3s' }}></div>
                 </div>
               </div>
               
               <div className="text-center">
-                <h3 className="text-2xl font-bold mb-2 text-transparent bg-gradient-to-r from-blue-400 to-white bg-clip-text">2025/2026</h3>
-                <p className="text-blue-400/80 text-sm tracking-[0.3em] uppercase">PROTOCOL_VER</p>
-                <div className="mt-4 text-xs text-blue-400/40 font-mono">{'>'} ACADEMIC_CYCLE</div>
+                <h3 className="text-xl md:text-2xl font-bold mb-1 md:mb-2 text-transparent bg-gradient-to-r from-blue-400 to-white bg-clip-text">2025/2026</h3>
+                <p className="text-blue-400/80 text-xs md:text-sm tracking-[0.3em] uppercase">PROTOCOL_VER</p>
+                <div className="mt-2 md:mt-4 text-xs text-blue-400/40 font-mono">{'>'} ACADEMIC_CYCLE</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Cyberpunk Description Terminal */}
-        <div className={`max-w-4xl w-full mb-20 transform transition-all duration-2000 delay-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}>
+        <div className={`max-w-4xl w-full mb-12 md:mb-20 transform transition-all duration-2000 delay-1500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}>
           <div className="relative bg-black/90 border-2 border-cyan-400/30 rounded-lg overflow-hidden">
             {/* Terminal Header */}
-            <div className="bg-gray-900/80 px-6 py-3 border-b border-cyan-400/30 flex items-center gap-4">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div className="bg-gray-900/80 px-4 py-2 md:px-6 md:py-3 border-b border-cyan-400/30 flex items-center gap-2 md:gap-4">
+              <div className="flex gap-1 md:gap-2">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full"></div>
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full"></div>
               </div>
-              <div className="text-cyan-400/80 text-sm font-mono">neural_network://xi-a.class/description.exe</div>
+              <div className="text-cyan-400/80 text-xs md:text-sm font-mono truncate">neural_network://xi-a.class/description.exe</div>
             </div>
             
             {/* Terminal Content */}
-            <div className="p-8">
-              <div className="text-cyan-400/60 text-sm mb-4 font-mono">{'>'} executing class_description.exe...</div>
-              <p className="text-gray-200 leading-relaxed text-lg mb-4">
+            <div className="p-4 md:p-8">
+              <div className="text-cyan-400/60 text-xs md:text-sm mb-2 md:mb-4 font-mono">{'>'} executing class_description.exe...</div>
+              <p className="text-gray-200 leading-relaxed text-sm md:text-lg mb-2 md:mb-4">
                 <span className="text-cyan-400">{'>'}</span> A community of{' '}
                 <span className="text-transparent bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text font-bold">enhanced learners</span>{' '}
                 mastering dual-language protocols, pursuing{' '}
                 <span className="text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text font-bold">maximum academic efficiency</span>{' '}
                 in our bilingual neural network.
               </p>
-              <div className="text-cyan-400/40 text-sm font-mono animate-pulse">{'>'} process_complete | status: optimal_performance</div>
+              <div className="text-cyan-400/40 text-xs md:text-sm font-mono animate-pulse">{'>'} process_complete | status: optimal_performance</div>
             </div>
           </div>
         </div>
 
         {/* Futuristic Scroll Indicator */}
-        <div className={`absolute bottom-12 left-1/2 transform -translate-x-1/2 transition-all duration-2000 delay-1500 ${isVisible ? 'opacity-80' : 'opacity-0'}`}>
+        <div className={`absolute bottom-6 md:bottom-12 left-1/2 transform -translate-x-1/2 transition-all duration-2000 delay-2000 ${isVisible ? 'opacity-80' : 'opacity-0'}`}>
           <div className="flex flex-col items-center">
-            <div className="text-cyan-400/60 text-xs mb-2 tracking-widest">SCROLL_DOWN</div>
-            <div className="w-8 h-14 border-2 border-cyan-400/40 rounded-full relative">
-              <div className="w-2 h-4 bg-gradient-to-b from-cyan-400 to-transparent rounded-full absolute top-2 left-1/2 transform -translate-x-1/2 animate-bounce"></div>
+            <div className="text-cyan-400/60 text-xs mb-1 md:mb-2 tracking-widest">SCROLL_DOWN</div>
+            <div className="w-6 h-10 md:w-8 md:h-14 border-2 border-cyan-400/40 rounded-full relative">
+              <div className="w-1.5 h-3 md:w-2 md:h-4 bg-gradient-to-b from-cyan-400 to-transparent rounded-full absolute top-1 md:top-2 left-1/2 transform -translate-x-1/2 animate-bounce"></div>
             </div>
-            <Zap className="w-5 h-5 text-cyan-400/60 mt-2 animate-pulse" />
+            <Zap className="w-4 h-4 md:w-5 md:h-5 text-cyan-400/60 mt-1 md:mt-2 animate-pulse" />
           </div>
         </div>
       </div>
@@ -230,39 +287,46 @@ export default function Home() {
       {/* Futuristic Frame */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Corner Brackets */}
-        <div className="absolute top-4 left-4 w-16 h-16">
-          <div className="absolute top-0 left-0 w-8 h-2 bg-cyan-400/60"></div>
-          <div className="absolute top-0 left-0 w-2 h-8 bg-cyan-400/60"></div>
+        <div className="absolute top-2 md:top-4 left-2 md:left-4 w-8 md:w-16 h-8 md:h-16">
+          <div className="absolute top-0 left-0 w-4 md:w-8 h-0.5 md:h-2 bg-cyan-400/60"></div>
+          <div className="absolute top-0 left-0 w-0.5 md:w-2 h-4 md:h-8 bg-cyan-400/60"></div>
         </div>
-        <div className="absolute top-4 right-4 w-16 h-16">
-          <div className="absolute top-0 right-0 w-8 h-2 bg-cyan-400/60"></div>
-          <div className="absolute top-0 right-0 w-2 h-8 bg-cyan-400/60"></div>
+        <div className="absolute top-2 md:top-4 right-2 md:right-4 w-8 md:w-16 h-8 md:h-16">
+          <div className="absolute top-0 right-0 w-4 md:w-8 h-0.5 md:h-2 bg-cyan-400/60"></div>
+          <div className="absolute top-0 right-0 w-0.5 md:w-2 h-4 md:h-8 bg-cyan-400/60"></div>
         </div>
-        <div className="absolute bottom-4 left-4 w-16 h-16">
-          <div className="absolute bottom-0 left-0 w-8 h-2 bg-purple-400/60"></div>
-          <div className="absolute bottom-0 left-0 w-2 h-8 bg-purple-400/60"></div>
+        <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 w-8 md:w-16 h-8 md:h-16">
+          <div className="absolute bottom-0 left-0 w-4 md:w-8 h-0.5 md:h-2 bg-purple-400/60"></div>
+          <div className="absolute bottom-0 left-0 w-0.5 md:w-2 h-4 md:h-8 bg-purple-400/60"></div>
         </div>
-        <div className="absolute bottom-4 right-4 w-16 h-16">
-          <div className="absolute bottom-0 right-0 w-8 h-2 bg-purple-400/60"></div>
-          <div className="absolute bottom-0 right-0 w-2 h-8 bg-purple-400/60"></div>
+        <div className="absolute bottom-2 md:bottom-4 right-2 md:right-4 w-8 md:w-16 h-8 md:h-16">
+          <div className="absolute bottom-0 right-0 w-4 md:w-8 h-0.5 md:h-2 bg-purple-400/60"></div>
+          <div className="absolute bottom-0 right-0 w-0.5 md:w-2 h-4 md:h-8 bg-purple-400/60"></div>
         </div>
       </div>
 
       {/* HUD Elements */}
-      <div className="absolute top-6 left-6 text-cyan-400/40 text-xs font-mono">
+      <div className="absolute top-2 md:top-6 left-2 md:left-6 text-cyan-400/40 text-xs font-mono">
         <div>XI-A_INTERFACE_v2.5</div>
-        <div className="mt-1">STATUS: <span className="text-green-400">ONLINE</span></div>
+        <div className="mt-0.5 md:mt-1">STATUS: <span className="text-green-400">ONLINE</span></div>
       </div>
       
-      <div className="absolute top-6 right-6 text-purple-400/40 text-xs font-mono text-right">
+      <div className="absolute top-2 md:top-6 right-2 md:right-6 text-purple-400/40 text-xs font-mono text-right">
         <div>NEURAL_LINK_ACTIVE</div>
-        <div className="mt-1">CONN: <span className="text-green-400 animate-pulse">●</span></div>
+        <div className="mt-0.5 md:mt-1">CONN: <span className="text-green-400 animate-pulse">●</span></div>
       </div>
 
       <style jsx>{`
         @keyframes gridPulse {
           0%, 100% { opacity: 0.2; }
           50% { opacity: 0.4; }
+        }
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out;
         }
       `}</style>
     </div>
