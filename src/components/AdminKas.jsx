@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from './firebase';
+import { db } from '../config/firebaseConfig';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 
 const Manage = () => {
