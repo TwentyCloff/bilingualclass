@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Users, Book, Award, ChevronDown, Zap, Globe, Terminal } from 'lucide-react';
 
 export default function Home() {
@@ -6,26 +6,91 @@ export default function Home() {
   const [glitchActive, setGlitchActive] = useState(false);
   const [scanlinePosition, setScanlinePosition] = useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [displayText, setDisplayText] = useState('');
+  const [currentTypingPhase, setCurrentTypingPhase] = useState('question');
+  const [isTyping, setIsTyping] = useState(true);
+  const chatContainerRef = useRef(null);
 
   const chatMessages = [
     {
       question: "What is SMAN 10 Pontianak?",
-      answer: "SMAN 10 Pontianak is a leading high school in West Kalimantan that focuses on digital-based education and student talent development."
+      answer: "SMAN 10 Pontianak is one of the most innovative high schools in West Kalimantan! We're known for our digital-forward approach to education and our vibrant bilingual program. Think of us as a launchpad for future leaders and tech-savvy innovators. Pretty cool, right? 😎"
     },
     {
       question: "Is this a digital-based school?",
-      answer: "Yes, SMAN 10 Pontianak is a digital-based school with modern facilities and technology-integrated learning methods."
+      answer: "Absolutely! We're all about digital here. From smart classrooms to online learning platforms, we've got the tech to make learning engaging and effective. Our teachers are tech-whizzes too – they'll have you coding, designing, and creating in no time! 💻✨"
     },
     {
       question: "Does this school support student talents?",
-      answer: "Absolutely! SMAN 10 Pontianak has various extracurricular programs and facilities to support and develop student talents."
+      answer: "Oh, you bet! Whether you're into robotics, arts, sports, or coding, we've got programs to help you shine. Our extracurricular lineup is like a talent buffet – pick what excites you! We've even had students compete nationally. Your talent? Consider it nurtured here! 🎨🤖🏆"
     },
     {
       question: "Does this school have bilingual classes?",
-      answer: "Yes, we have bilingual classes including XI-A which implements English-Indonesian dual language instruction."
+      answer: "You're looking at one right now! XI-A is our flagship bilingual class where subjects are taught in both English and Indonesian. It's not just about language – it's about thinking globally. Plus, it makes you sound super impressive at international events! 🌍🗣️"
+    },
+    {
+      question: "What makes SMAN 10 special?",
+      answer: "Where do I start? It's the energy! Between our cutting-edge facilities, passionate teachers, and students who are always pushing boundaries – there's this buzz of creativity everywhere. It's not just school; it's where future-ready minds are built. Come see for yourself! 🚀"
     }
   ];
 
+  // Typing animation effect
+  useEffect(() => {
+    let currentText = '';
+    let currentIndex = 0;
+    let typingSpeed = 30; // Faster typing speed
+    let deletingSpeed = 15; // Faster deleting speed
+    let pauseDuration = 1500; // Pause between messages
+
+    const typeText = () => {
+      const message = currentTypingPhase === 'question' 
+        ? chatMessages[currentMessageIndex].question 
+        : chatMessages[currentMessageIndex].answer;
+
+      if (currentIndex < message.length) {
+        currentText = message.substring(0, currentIndex + 1);
+        setDisplayText(currentText);
+        currentIndex++;
+        setTimeout(typeText, typingSpeed + (Math.random() * 20)); // Slight randomness to typing
+      } else {
+        if (currentTypingPhase === 'question') {
+          setTimeout(() => {
+            setCurrentTypingPhase('answer');
+            currentText = '';
+            currentIndex = 0;
+            typeText();
+          }, 500); // Short pause before answer
+        } else {
+          setIsTyping(false);
+          setTimeout(() => {
+            setIsTyping(true);
+            setCurrentTypingPhase('question');
+            setCurrentMessageIndex((prev) => (prev + 1) % chatMessages.length);
+            currentText = '';
+            currentIndex = 0;
+          }, pauseDuration);
+        }
+      }
+    };
+
+    if (isTyping) {
+      typeText();
+    }
+
+    return () => {
+      currentText = '';
+      currentIndex = 0;
+    };
+  }, [currentMessageIndex, currentTypingPhase, isTyping]);
+
+  // Auto-scroll chat container
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [displayText]);
+
+  // Other effects (glitch, scanline)
   useEffect(() => {
     setIsVisible(true);
     
@@ -40,15 +105,9 @@ export default function Home() {
       setScanlinePosition(prev => (prev + 1) % 100);
     }, 50);
 
-    // Auto-scroll chat messages
-    const chatInterval = setInterval(() => {
-      setCurrentMessageIndex(prev => (prev + 1) % chatMessages.length);
-    }, 5000);
-
     return () => {
       clearInterval(glitchInterval);
       clearInterval(scanlineInterval);
-      clearInterval(chatInterval);
     };
   }, []);
 
@@ -158,18 +217,26 @@ export default function Home() {
             </div>
             
             {/* Chat Content */}
-            <div className="p-4 md:p-6">
+            <div 
+              ref={chatContainerRef}
+              className="p-4 md:p-6 h-48 md:h-64 overflow-y-auto custom-scrollbar"
+            >
               <div className="mb-4">
-                <div className="text-purple-400 text-sm md:text-base font-mono mb-2 animate-fade-in">
+                <div className="text-purple-400 text-sm md:text-base font-mono mb-2">
                   <span className="text-green-400">{'>'}</span> {chatMessages[currentMessageIndex].question}
                 </div>
-                <div className="text-cyan-300 text-sm md:text-base font-mono animate-fade-in">
-                  <span className="text-blue-400">{'>>'}</span> {chatMessages[currentMessageIndex].answer}
+                <div className="text-cyan-300 text-sm md:text-base font-mono">
+                  <span className="text-blue-400">{'>>'}</span> {displayText}
+                  {isTyping && currentTypingPhase === 'answer' && (
+                    <span className="ml-1 inline-block w-2 h-4 bg-cyan-400 animate-blink"></span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center">
                 <div className="w-2 h-2 md:w-3 md:h-3 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                <div className="text-green-400/60 text-xs md:text-sm font-mono">awaiting_next_query...</div>
+                <div className="text-green-400/60 text-xs md:text-sm font-mono">
+                  {currentTypingPhase === 'question' ? 'processing_query...' : 'response_complete'}
+                </div>
               </div>
             </div>
           </div>
@@ -316,17 +383,30 @@ export default function Home() {
         <div className="mt-0.5 md:mt-1">CONN: <span className="text-green-400 animate-pulse">●</span></div>
       </div>
 
-      <style jsx>{`
+      <style jsx global>{`
         @keyframes gridPulse {
           0%, 100% { opacity: 0.2; }
           50% { opacity: 0.4; }
         }
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
+        .animate-blink {
+          animation: blink 1s step-end infinite;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(0, 255, 255, 0.4);
+          border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 255, 255, 0.6);
         }
       `}</style>
     </div>
