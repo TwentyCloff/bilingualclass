@@ -1,246 +1,258 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, DollarSign, User, Trash2 } from 'lucide-react';
-import { collection, onSnapshot, query, orderBy, doc, setDoc, deleteDoc, getDocs } from 'firebase/firestore';
-import { db } from '../config/firebaseConfig';
+import { Users, Calendar, CheckCircle, AlertCircle, DollarSign } from 'lucide-react';
+import { database } from '../config/firebaseConfig';
+import { ref, push, onValue } from 'firebase/database';
 
-const studentList = [
-  'Alicia', 'Aurelia', 'Chalisa', 'Dahlia', 'Danu', 'Dara', 'Fairuz',
-  'Falan', 'Fathul', 'Firly', 'Fredy', 'Hatyu', 'Jessica', 'Kalinda',
-  'Kania', 'Keisha', 'Kenzo', 'Laras', 'Lukas', 'Fakhar', 'Fiqry',
-  'Firza', 'Nadine', 'Nazwa', 'Quinsha', 'Mecca', 'Aisy', 'Salsabiela',
-  'Sandi', 'Shabrina', 'Shafira', 'Humaira', 'Tiara', 'Utin', 'Willy'
-];
+const KasPayment = () => {
+  const [selectedStudent, setSelectedStudent] = useState('');
+  const [selectedWeek, setSelectedWeek] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [amount, setAmount] = useState('');
+  const [payments, setPayments] = useState({});
+  const [loading, setLoading] = useState(false);
+  
+  const students = [
+    'Alicia', 'Aurelia', 'Chalisa', 'Dahlia', 'Danu', 'Dara', 'Fairuz', 'Falan', 
+    'Fathul', 'Firly', 'Fredy', 'Hayyu', 'Jessica', 'Kalinda', 'Kania', 'Keisha', 
+    'Kenzo', 'Laras', 'Lukas', 'Fakhar', 'Fiqry', 'Firza', 'Nadine', 'Nazwa', 
+    'Quinsha', 'Mecca', 'Aisy', 'Salsabiela', 'Sandi', 'Shabrina', 'Shafira', 
+    'Humaira', 'Tiara', 'Utin', 'Willy'
+  ];
 
-export default function Kas() {
-  const navigate = useNavigate();
-  const [students, setStudents] = useState([]);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupMessage, setPopupMessage] = useState('');
-  const [totalKas, setTotalKas] = useState(0);
-  const [pengeluaran, setPengeluaran] = useState(0);
-  const [kasHariIni, setKasHariIni] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ amount: '', week: '1', note: '' });
+  const months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
 
-  const currentDate = new Date();
-  const currentMonth = currentDate.toLocaleString('id-ID', { month: 'long' });
-  const currentYear = currentDate.getFullYear();
+  const weeks = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'];
 
+  // Setup Firebase listener untuk real-time updates
   useEffect(() => {
-    const kasQuery = query(collection(db, 'kas'), orderBy('timestamp', 'desc'));
-    const unsubscribeKas = onSnapshot(kasQuery, async (querySnapshot) => {
-      let total = 0;
-      let todayTotal = 0;
-      const today = new Date().toDateString();
-      const studentPayments = {};
-      
-      studentList.forEach(student => {
-        studentPayments[student] = { payments: [], total: 0 };
-      });
-
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const amount = data.amount || 0;
-        total += amount;
-        
-        if (new Date(data.date?.toDate?.()).toDateString() === today) {
-          todayTotal += amount;
-        }
-        
-        if (data.studentName && studentPayments[data.studentName]) {
-          studentPayments[data.studentName].payments.push({
-            id: doc.id,
-            ...data,
-            date: data.date?.toDate?.() || null
-          });
-          studentPayments[data.studentName].total += amount;
-        }
-      });
-      
-      const pengeluaranQuery = query(collection(db, 'pengeluaran'));
-      const pengeluaranSnapshot = await getDocs(pengeluaranQuery);
-      let totalPengeluaran = 0;
-      
-      pengeluaranSnapshot.forEach((doc) => {
-        totalPengeluaran += doc.data().amount || 0;
-      });
-
-      setTotalKas(total);
-      setPengeluaran(totalPengeluaran);
-      setKasHariIni(todayTotal);
-      
-      const formattedStudents = studentList.map(name => ({
-        name,
-        payments: studentPayments[name]?.payments || [],
-        totalPaid: studentPayments[name]?.total || 0
-      }));
-      
-      setStudents(formattedStudents);
+    const paymentsRef = ref(database, 'payments');
+    const unsubscribe = onValue(paymentsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setPayments(snapshot.val());
+      } else {
+        setPayments({});
+      }
     });
 
-    return () => unsubscribeKas();
+    return () => unsubscribe();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.amount || !selectedStudent) return;
+  // Cek apakah siswa sudah bayar di minggu tertentu
+  const isWeekPaid = (student, month, year, week) => {
+    return Object.values(payments).some(payment => 
+      payment.student === student && 
+      payment.month === month && 
+      payment.year === year && 
+      payment.week === week &&
+      payment.status === 'paid'
+    );
+  };
 
-    setIsSubmitting(true);
+  // Get available weeks untuk siswa yang dipilih
+  const getAvailableWeeks = () => {
+    if (!selectedStudent || !selectedMonth || !selectedYear) return weeks;
+    
+    return weeks.filter(week => 
+      !isWeekPaid(selectedStudent, selectedMonth, selectedYear, week)
+    );
+  };
+
+  // Handle pembayaran
+  const handlePayment = async () => {
+    if (!selectedStudent || !selectedWeek || !selectedMonth || !selectedYear || !amount) {
+      alert('Mohon lengkapi semua field!');
+      return;
+    }
+
+    if (isWeekPaid(selectedStudent, selectedMonth, selectedYear, selectedWeek)) {
+      alert('Siswa sudah membayar di minggu ini!');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const now = new Date();
-      const docId = `${selectedStudent}_${now.getTime()}`;
-      const amount = parseFloat(formData.amount);
+      const paymentData = {
+        student: selectedStudent,
+        week: selectedWeek,
+        month: selectedMonth,
+        year: selectedYear,
+        amount: parseFloat(amount),
+        status: 'paid',
+        timestamp: Date.now(),
+        date: new Date().toISOString()
+      };
+
+      await push(ref(database, 'payments'), paymentData);
+
+      // Reset form
+      setSelectedStudent('');
+      setSelectedWeek('');
+      setAmount('');
       
-      await setDoc(doc(db, 'kas', docId), {
-        studentName: selectedStudent,
-        amount,
-        week: formData.week,
-        note: formData.note.trim(),
-        date: now,
-        month: currentMonth,
-        year: currentYear,
-        timestamp: now.getTime()
-      });
-      
-      setPopupMessage(`Pembayaran ${formatPrice(amount)} untuk ${selectedStudent} berhasil!`);
-      setShowPopup(true);
-      setTimeout(() => setShowPopup(false), 3000);
-      setFormData({ amount: '', week: '1', note: '' });
-      setShowPaymentForm(false);
+      alert('Pembayaran berhasil dicatat!');
     } catch (error) {
       console.error('Error:', error);
-      setPopupMessage('Gagal menyimpan pembayaran!');
-      setShowPopup(true);
+      alert('Terjadi kesalahan saat menyimpan pembayaran!');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
-
-  const formatDate = (date) => {
-    if (!date) return '';
-    return date.toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
+  const availableWeeks = getAvailableWeeks();
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <button onClick={() => navigate(-1)} className="flex items-center text-gray-400 mb-8">
-          <ArrowLeft className="mr-2" /> Kembali
-        </button>
-
-        <h1 className="text-3xl font-bold mb-6">Kas Kelas</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-gray-900 p-4 rounded-lg">
-            <p className="text-gray-400">Total Kas</p>
-            <p className="text-2xl font-bold">{formatPrice(totalKas)}</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6">
+        <div className="text-center mb-8">
+          <div className="bg-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <DollarSign className="w-8 h-8 text-white" />
           </div>
-          <div className="bg-gray-900 p-4 rounded-lg">
-            <p className="text-gray-400">Pengeluaran</p>
-            <p className="text-2xl font-bold">{formatPrice(pengeluaran)}</p>
-          </div>
-          <div className="bg-gray-900 p-4 rounded-lg">
-            <p className="text-gray-400">Kas Hari Ini</p>
-            <p className="text-2xl font-bold">{formatPrice(kasHariIni)}</p>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Pembayaran Kas</h1>
+          <p className="text-gray-600 mt-2">Input pembayaran kas kelas</p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-          {studentList.map((student) => (
-            <div 
-              key={student} 
-              onClick={() => {
-                setSelectedStudent(student);
-                setShowPaymentForm(true);
-              }}
-              className="bg-gray-900 p-4 rounded-lg hover:bg-gray-800 cursor-pointer"
+        <div className="space-y-6">
+          {/* Pilih Siswa */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Users className="w-4 h-4 inline mr-1" />
+              Pilih Siswa
+            </label>
+            <select
+              value={selectedStudent}
+              onChange={(e) => setSelectedStudent(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <p className="font-medium">{student}</p>
-              <p className="text-sm text-gray-400">
-                {students.find(s => s.name === student)?.payments.length || 0} pembayaran
+              <option value="">-- Pilih Siswa --</option>
+              {students.map((student) => (
+                <option key={student} value={student}>{student}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Pilih Tahun */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Calendar className="w-4 h-4 inline mr-1" />
+              Tahun
+            </label>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+            </select>
+          </div>
+
+          {/* Pilih Bulan */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Calendar className="w-4 h-4 inline mr-1" />
+              Bulan
+            </label>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">-- Pilih Bulan --</option>
+              {months.map((month, index) => (
+                <option key={month} value={month}>{month}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Pilih Minggu */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Calendar className="w-4 h-4 inline mr-1" />
+              Minggu
+            </label>
+            <select
+              value={selectedWeek}
+              onChange={(e) => setSelectedWeek(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={!selectedStudent || !selectedMonth || !selectedYear}
+            >
+              <option value="">-- Pilih Minggu --</option>
+              {availableWeeks.map((week) => (
+                <option key={week} value={week}>{week}</option>
+              ))}
+            </select>
+            {selectedStudent && selectedMonth && selectedYear && availableWeeks.length === 0 && (
+              <p className="text-sm text-red-500 mt-1">
+                <AlertCircle className="w-4 h-4 inline mr-1" />
+                Semua minggu sudah dibayar untuk siswa ini
               </p>
+            )}
+          </div>
+
+          {/* Input Jumlah */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <DollarSign className="w-4 h-4 inline mr-1" />
+              Jumlah (Rp)
+            </label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Masukkan jumlah kas"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Status Pembayaran Siswa */}
+          {selectedStudent && selectedMonth && selectedYear && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-medium text-gray-700 mb-3">Status Pembayaran {selectedStudent}</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {weeks.map((week) => {
+                  const isPaid = isWeekPaid(selectedStudent, selectedMonth, selectedYear, week);
+                  return (
+                    <div
+                      key={week}
+                      className={`p-2 rounded-lg text-sm font-medium flex items-center justify-center ${
+                        isPaid 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {isPaid && <CheckCircle className="w-4 h-4 mr-1" />}
+                      {week}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          ))}
+          )}
+
+          {/* Button Submit */}
+          <button
+            onClick={handlePayment}
+            disabled={loading || !selectedStudent || !selectedWeek || !selectedMonth || !selectedYear || !amount}
+            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <>
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Catat Pembayaran
+              </>
+            )}
+          </button>
         </div>
-
-        {showPaymentForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4">
-            <div className="bg-gray-900 p-6 rounded-lg max-w-md w-full">
-              <h2 className="text-xl font-bold mb-4">Catat Pembayaran - {selectedStudent}</h2>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label className="block mb-2">Jumlah (Rp)</label>
-                  <input
-                    type="number"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                    className="w-full bg-gray-800 p-2 rounded"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">Minggu</label>
-                  <select
-                    value={formData.week}
-                    onChange={(e) => setFormData({...formData, week: e.target.value})}
-                    className="w-full bg-gray-800 p-2 rounded"
-                  >
-                    {[1,2,3,4].map(week => (
-                      <option key={week} value={week.toString()}>Minggu {week}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">Catatan (Opsional)</label>
-                  <input
-                    type="text"
-                    value={formData.note}
-                    onChange={(e) => setFormData({...formData, note: e.target.value})}
-                    className="w-full bg-gray-800 p-2 rounded"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded flex-1"
-                  >
-                    {isSubmitting ? 'Menyimpan...' : 'Simpan'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowPaymentForm(false)}
-                    className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded"
-                  >
-                    Batal
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {showPopup && (
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 px-4 py-2 rounded">
-            {popupMessage}
-          </div>
-        )}
       </div>
     </div>
   );
-}
+};
+
+export default KasPayment;
