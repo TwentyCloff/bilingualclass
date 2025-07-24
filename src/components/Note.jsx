@@ -42,10 +42,16 @@ export default function Note() {
     setTitle(`Note ${getCurrentDate()}`);
     setContent('');
     setShowSaveAs(false);
+    // Focus editor after a small delay to ensure it's rendered
+    setTimeout(() => {
+      if (editorRef.current) {
+        editorRef.current.focus();
+      }
+    }, 100);
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     if (!content.trim()) return;
 
     setIsSaving(true);
@@ -272,6 +278,7 @@ export default function Note() {
               onInput={(e) => setContent(e.target.innerHTML)}
               className="p-6 min-h-[300px] focus:outline-none text-white/80"
               style={{ whiteSpace: 'pre-wrap' }}
+              placeholder="Start typing your note here..."
             ></div>
 
             {/* Footer */}
